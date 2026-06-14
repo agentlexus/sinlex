@@ -38,7 +38,7 @@ function initThreeViewer() {
   const spinGroup = new THREE.Group();
   const grid = new THREE.GridHelper(3.2, 16, 0x94a3b8, 0xcbd5e1);
   grid.rotation.z = Math.PI / 2;
-  grid.position.x = -1.25;
+  grid.position.x = 1.25;
   grid.material.transparent = true;
   grid.material.opacity = 0.28;
   viewGroup.rotation.x = 0.62;
@@ -50,8 +50,6 @@ function initThreeViewer() {
   let isDragging = false;
   let prevX = 0;
   let prevY = 0;
-  let viewPitch = 0.62;
-  let viewYaw = 0.38;
   let model = null;
   let spinAxis = new THREE.Vector3(0, 0, 1);
 
@@ -137,10 +135,8 @@ function initThreeViewer() {
     const pos = pointerPosition(event);
     const x = pos.x || 0;
     const y = pos.y || 0;
-    viewYaw += (x - prevX) * 0.004;
-    viewPitch += (y - prevY) * 0.004;
-    viewPitch = Math.max(-1.05, Math.min(1.05, viewPitch));
-    viewGroup.rotation.set(viewPitch, viewYaw, 0, "YXZ");
+    viewGroup.rotateY((x - prevX) * 0.003);
+    viewGroup.rotateX((y - prevY) * 0.003);
     prevX = x;
     prevY = y;
   }
