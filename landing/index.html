@@ -158,13 +158,13 @@
               <p>Что проверяет команда, какой следующий шаг и где сейчас заказ.</p>
             </div>
           </article>
-          <article class="product-shot">
-            <div class="product-shot__frame">
-              <img src="assets/screens/impeller-3d.png" alt="3D-модель крыльчатки в Sinlex с инструментами просмотра" width="1024" height="627" loading="lazy" decoding="async">
+          <article class="product-shot product-shot--three">
+            <div class="product-shot__frame product-shot__frame--three">
+              <canvas id="three-viewer" width="1024" height="627"></canvas>
             </div>
             <div class="product-shot__caption">
               <span>3D и параметры</span>
-              <p>Модель помогает быстро уточнить материал, заготовку и габариты.</p>
+              <p>Вращайте модель, изучайте геометрию — прямо в лендинге.</p>
             </div>
           </article>
           <article class="product-shot">
@@ -370,5 +370,137 @@
   <script src="/js/legal-modal.js" defer></script>
   <script src="/js/vendor/micromodal.min.js" defer></script>
   <script src="/js/register-modal.js" defer></script>
+
+  <!-- Three.js 3D Viewer -->
+  <script src="assets/vendor/three.min.js"></script>
+  <script src="assets/vendor/GLTFLoader.js"></script>
+  <script>
+  (function () {
+    "use strict";
+
+    function initThreeViewer() {
+      var canvas = document.getElementById("three-viewer");
+      if (!canvas || typeof THREE === "undefined") return;
+
+      var scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x0f172a);
+
+      var w = canvas.clientWidth || 1024;
+      var h = canvas.clientHeight || 627;
+
+      var camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 1000);
+      camera.position.set(0, 0, 3);
+
+      var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setSize(w, h);
+
+      // Lights
+      var hemi = new THREE.HemisphereLight(0xffffff, 0x334155, 0.8);
+      scene.add(hemi);
+
+      var dir = new THREE.DirectionalLight(0xffffff, 0.6);
+      dir.position.set(5, 10, 7);
+      scene.add(dir);
+
+      var loader = new THREE.GLTFLoader();
+      var model = null;
+
+      loader.load(
+        "assets/models/wheel-compressor.glb",
+        function (gltf) {
+          model = gltf.scene;
+          // Auto-center and scale
+          var box = new THREE.Box3().setFromObject(model);
+          var size = box.getSize(new THREE.Vector3());
+          var maxDim = Math.max(size.x, size.y, size.z);
+          var scale = 2.2 / maxDim;
+          model.scale.setScalar(scale);
+
+          box.setFromObject(model);
+          var center = box.getCenter(new THREE.Vector3());
+          model.position.sub(center);
+
+          scene.add(model);
+        },
+        undefined,
+        function (err) {
+          // Fallback: show a simple torus if model fails to load
+          var geo = new THREE.TorusKnotGeometry(0.8, 0.25, 120, 16);
+          var mat = new THREE.MeshStandardMaterial({ color: 0x64748b, metalness: 0.8, roughness: 0.3 });
+          model = new THREE.Mesh(geo, mat);
+          scene.add(model);
+        }
+      );
+
+      // Mouse interaction
+      var isDragging = false;
+      var prevX = 0;
+      var prevY = 0;
+      var rotY = 0;
+      var rotX = 0.2;
+
+      function onPointerDown(e) {
+        isDragging = true;
+        prevX = e.clientX || (e.touches && e.touches[0].clientX) || 0;
+        prevY = e.clientY || (e.touches && e.touches[0].clientY) || 0;
+      }
+      function onPointerMove(e) {
+        if (!isDragging) return;
+        var x = e.clientX || (e.touches && e.touches[0].clientX) || 0;
+        var y = e.clientY || (e.touches && e.touches[0].clientY) || 0;
+        rotY += (x - prevX) * 0.003;
+        rotX += (y - prevY) * 0.003;
+        rotX = Math.max(-1.2, Math.min(1.2, rotX));
+        prevX = x;
+        prevY = y;
+      }
+      function onPointerUp() {
+        isDragging = false;
+      }
+
+      canvas.addEventListener("mousedown", onPointerDown);
+      window.addEventListener("mousemove", onPointerMove);
+      window.addEventListener("mouseup", onPointerUp);
+      canvas.addEventListener("touchstart", onPointerDown, { passive: true });
+      window.addEventListener("touchmove", onPointerMove, { passive: true });
+      window.addEventListener("touchend", onPointerUp);
+
+      // Resize
+      function onResize() {
+        var rect = canvas.getBoundingClientRect();
+        var nw = rect.width || w;
+        var nh = rect.height || h;
+        camera.aspect = nw / nh;
+        camera.updateProjectionMatrix();
+        renderer.setSize(nw, nh);
+      }
+      window.addEventListener("resize", onResize);
+
+      // Animation loop
+      var last = 0;
+      function animate(t) {
+        requestAnimationFrame(animate);
+        var dt = ((t || 0) - last) / 1000;
+        last = t || 0;
+        if (model && !isDragging) {
+          rotY += dt * 0.15; // gentle auto-rotate
+        }
+        if (model) {
+          model.rotation.y = rotY;
+          model.rotation.x = rotX;
+        }
+        renderer.render(scene, camera);
+      }
+      animate();
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", initThreeViewer);
+    } else {
+      initThreeViewer();
+    }
+  })();
+  </script>
 </body>
 </html>

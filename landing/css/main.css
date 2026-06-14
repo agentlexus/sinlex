@@ -1946,6 +1946,25 @@ body.legal-modal-open {
   pointer-events: none;
 }
 
+.product-shot--three {
+  min-height: 22rem;
+}
+
+.product-shot__frame--three {
+  background: #0f172a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+}
+
+.product-shot__frame--three canvas {
+  width: 100% !important;
+  height: 100% !important;
+  max-height: 100%;
+  display: block;
+}
+
 .product-shot img {
   width: 100%;
   height: 100%;
@@ -2122,8 +2141,9 @@ body.legal-modal-open {
   .product-shot--large {
     min-height: auto;
   }
-  .product-shot__frame img {
-    min-height: 12rem;
+  .product-shot__frame img,
+  .product-shot--three {
+    min-height: 14rem;
   }
   .tech-check-list {
     grid-template-columns: 1fr;
