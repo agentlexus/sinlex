@@ -9,8 +9,9 @@ DEPLOY_USER="${DEPLOY_USER:-sinlex}"
 SERVICES=(sinlex-server.service sinlex-streamlit.service)
 
 exec 9>"$LOCK_FILE"
-if ! flock -n 9; then
-  echo "Another Sinlex deploy is already running" >&2
+echo "Waiting for deploy lock..."
+if ! flock -w "${LOCK_TIMEOUT_SECONDS:-600}" 9; then
+  echo "Another Sinlex deploy is still running after ${LOCK_TIMEOUT_SECONDS:-600}s" >&2
   exit 1
 fi
 
