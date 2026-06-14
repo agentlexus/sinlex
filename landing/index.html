@@ -159,12 +159,20 @@
             </div>
           </article>
           <article class="product-shot product-shot--three">
-            <div class="product-shot__frame product-shot__frame--three">
-              <canvas id="three-viewer" width="1024" height="627"></canvas>
-            </div>
-            <div class="product-shot__caption">
-              <span>3D и параметры</span>
-              <p>Вращайте модель, изучайте геометрию — прямо в лендинге.</p>
+            <div class="product-three">
+              <div class="product-three__viewer" aria-label="Интерактивный 3D-просмотр детали">
+                <canvas id="three-viewer" width="720" height="520"></canvas>
+              </div>
+              <div class="product-three__copy">
+                <span>3D и параметры</span>
+                <h3>Загрузите модель, а Sinlex поможет разобраться с изготовлением</h3>
+                <p>В кабинете можно работать со STEP/3D-моделью, чертежом и параметрами детали: смотреть геометрию, уточнять материал, количество, заготовку и требования перед запуском заявки.</p>
+                <ul>
+                  <li>STEP, PDF, чертежи и архивы по детали</li>
+                  <li>AI-анализ исходных данных и подсказки по производству</li>
+                  <li>Изменение материала, партии, заготовки и параметров расчета</li>
+                </ul>
+              </div>
             </div>
           </article>
           <article class="product-shot">
@@ -381,7 +389,6 @@
   </script>
   <script type="module">
   import * as THREE from "three";
-  import { GLTFLoader } from "/api/static/three/addons/loaders/GLTFLoader.js";
 
   function initThreeViewer() {
     const canvas = document.getElementById("three-viewer");
@@ -410,41 +417,50 @@
     fillLight.position.set(-4, -2, 3);
     scene.add(fillLight);
 
-    let model = null;
+    const model = new THREE.Group();
     let isDragging = false;
     let prevX = 0;
     let prevY = 0;
     let rotY = 0;
     let rotX = 0.25;
 
-    function fitModel(object) {
-      const box = new THREE.Box3().setFromObject(object);
-      const size = box.getSize(new THREE.Vector3());
-      const maxDim = Math.max(size.x, size.y, size.z) || 1;
-      object.scale.setScalar(2.25 / maxDim);
-      box.setFromObject(object);
-      object.position.sub(box.getCenter(new THREE.Vector3()));
+    const metal = new THREE.MeshStandardMaterial({
+      color: 0x9ca3af,
+      metalness: 0.78,
+      roughness: 0.24
+    });
+    const accent = new THREE.MeshStandardMaterial({
+      color: 0x2dd4bf,
+      metalness: 0.35,
+      roughness: 0.38,
+      transparent: true,
+      opacity: 0.34
+    });
+
+    const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.48, 0.42, 64), metal);
+    hub.rotation.x = Math.PI / 2;
+    model.add(hub);
+
+    const rim = new THREE.Mesh(new THREE.TorusGeometry(0.9, 0.055, 18, 96), metal);
+    rim.rotation.x = Math.PI / 2;
+    model.add(rim);
+
+    const bladeGeometry = new THREE.BoxGeometry(0.12, 0.8, 0.05);
+    for (let i = 0; i < 14; i += 1) {
+      const blade = new THREE.Mesh(bladeGeometry, metal);
+      const angle = (i / 14) * Math.PI * 2;
+      blade.position.set(Math.cos(angle) * 0.58, Math.sin(angle) * 0.58, 0);
+      blade.rotation.z = angle + 0.55;
+      blade.rotation.x = 0.45;
+      blade.scale.set(0.95, 1, 1);
+      model.add(blade);
     }
 
-    new GLTFLoader().load(
-      "/api/showcase/wheel-compressor.glb",
-      (gltf) => {
-        model = gltf.scene;
-        fitModel(model);
-        scene.add(model);
-      },
-      undefined,
-      () => {
-        const geo = new THREE.TorusKnotGeometry(0.8, 0.25, 120, 16);
-        const mat = new THREE.MeshStandardMaterial({
-          color: 0x94a3b8,
-          metalness: 0.75,
-          roughness: 0.28
-        });
-        model = new THREE.Mesh(geo, mat);
-        scene.add(model);
-      }
-    );
+    const envelope = new THREE.Mesh(new THREE.TorusGeometry(0.92, 0.035, 16, 96), accent);
+    envelope.rotation.x = Math.PI / 2;
+    model.add(envelope);
+    model.rotation.x = 0.25;
+    scene.add(model);
 
     function pointerPosition(event) {
       const touch = event.touches && event.touches[0];
