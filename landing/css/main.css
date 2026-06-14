@@ -1926,8 +1926,8 @@ body.legal-modal-open {
   box-shadow: 0 4px 12px rgba(26,29,38,0.08), 0 32px 90px rgba(26,29,38,0.14);
 }
 
-.product-shot--large {
-  grid-row: span 2;
+.product-shot--status {
+  grid-column: span 1;
 }
 
 .product-shot__frame {
@@ -2122,9 +2122,8 @@ body.legal-modal-open {
   .product-shot--large {
     min-height: auto;
   }
-  .product-shot__frame img,
-  .product-shot--large img {
-    min-height: 15rem;
+  .product-shot__frame img {
+    min-height: 12rem;
   }
   .tech-check-list {
     grid-template-columns: 1fr;
@@ -2235,11 +2234,8 @@ body.legal-modal-open {
   .product-shot-grid {
     grid-template-columns: 1fr;
   }
-  .product-shot--large {
-    grid-row: auto;
-  }
-  .product-shot--large .product-shot__frame img {
-    min-height: clamp(15rem, 70vw, 24rem);
+  .product-shot--status {
+    grid-column: auto;
   }
   .tech-check-card {
     grid-template-columns: 1fr;
