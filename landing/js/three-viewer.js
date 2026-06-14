@@ -21,17 +21,22 @@ function initThreeViewer() {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   renderer.setSize(width, height, false);
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
 
-  scene.add(new THREE.HemisphereLight(0xffffff, 0xb0b0b0, 1));
+  scene.add(new THREE.HemisphereLight(0xffffff, 0xdbe4ef, 1.25));
 
-  const keyLight = new THREE.DirectionalLight(0xffffff, 0.8);
+  const keyLight = new THREE.DirectionalLight(0xffffff, 1.15);
   keyLight.position.set(5, 10, 7);
   scene.add(keyLight);
+
+  const fillLight = new THREE.DirectionalLight(0x7dd3fc, 0.25);
+  fillLight.position.set(-4, -2, 5);
+  scene.add(fillLight);
 
   let isDragging = false;
   let prevX = 0;
   let prevY = 0;
-  let rotY = 0;
+  let rotZ = 0;
   let rotX = 0.25;
   let model = null;
 
@@ -55,9 +60,16 @@ function initThreeViewer() {
   }
 
   function applyDefaultMaterial(object) {
+    const material = new THREE.MeshStandardMaterial({
+      color: 0x8b98a8,
+      metalness: 0.38,
+      roughness: 0.42,
+      envMapIntensity: 0.6
+    });
+
     object.traverse(function (child) {
       if (!child.isMesh) return;
-      child.material = new THREE.MeshNormalMaterial();
+      child.material = material;
       child.castShadow = false;
       child.receiveShadow = false;
     });
@@ -98,7 +110,7 @@ function initThreeViewer() {
     const pos = pointerPosition(event);
     const x = pos.x || 0;
     const y = pos.y || 0;
-    rotY += (x - prevX) * 0.003;
+    rotZ += (x - prevX) * 0.003;
     rotX += (y - prevY) * 0.003;
     rotX = Math.max(-1.2, Math.min(1.2, rotX));
     prevX = x;
@@ -131,9 +143,9 @@ function initThreeViewer() {
     requestAnimationFrame(animate);
     const dt = (time - lastTime) / 1000;
     lastTime = time;
-    if (model && !isDragging) rotY += dt * 0.15;
+    if (model && !isDragging) rotZ += dt * 0.15;
     if (model) {
-      model.rotation.y = rotY;
+      model.rotation.z = rotZ;
       model.rotation.x = rotX;
     }
     renderer.render(scene, camera);
