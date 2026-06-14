@@ -138,38 +138,29 @@
       </section>
 
       <section class="product-preview-section" aria-labelledby="product-preview-title">
-        <div class="section-head reveal"><span class="badge">Кабинет заказа</span><h2 id="product-preview-title">Заявка выглядит как понятная рабочая карточка</h2></div>
-        <div class="order-preview reveal reveal-d1" aria-label="Пример карточки заказа">
-          <div class="order-preview__head">
-            <div>
-              <span class="order-preview__eyebrow">Заказ SIN-2048</span>
-              <h3>Кронштейн по чертежу и STEP</h3>
+        <div class="section-head reveal"><span class="badge">Кабинет заказа</span><h2 id="product-preview-title">Видно файлы, параметры и этап производства</h2></div>
+        <div class="product-shot-grid reveal reveal-d1" aria-label="Скриншоты кабинета Sinlex">
+          <article class="product-shot product-shot--large">
+            <img src="assets/screens/order-card.png" alt="Карточка заказа Sinlex со статусом производства, спецификацией, документами и суммой заказа" width="746" height="1024" loading="lazy" decoding="async">
+            <div class="product-shot__caption">
+              <span>Карточка заказа</span>
+              <p>Статус производства, спецификация, документы, реквизиты и стоимость собраны в одном месте.</p>
             </div>
-            <span class="order-preview__status">Проверка файлов</span>
-          </div>
-          <div class="order-preview__grid">
-            <div class="order-preview__panel">
-              <span class="order-preview__label">Файлы</span>
-              <ul class="file-stack">
-                <li><span>STEP</span> bracket_v3.step</li>
-                <li><span>PDF</span> drawing_042.pdf</li>
-                <li><span>XLS</span> партия_20шт.xlsx</li>
-              </ul>
+          </article>
+          <article class="product-shot">
+            <img src="assets/screens/step-3d-upload.png" alt="3D-модель детали и параметры мехобработки в Sinlex" width="1024" height="627" loading="lazy" decoding="async">
+            <div class="product-shot__caption">
+              <span>3D и параметры</span>
+              <p>STEP-модель помогает быстрее уточнить материал, заготовку, количество и габариты.</p>
             </div>
-            <div class="order-preview__panel">
-              <span class="order-preview__label">Этапы</span>
-              <ol class="status-track">
-                <li class="is-done">Файлы получены</li>
-                <li class="is-active">Проверка чертежа и STEP</li>
-                <li>Согласование условий</li>
-                <li>Запуск в производство</li>
-              </ol>
+          </article>
+          <article class="product-shot">
+            <img src="assets/screens/casting-analysis.png" alt="3D-модель и параметры литья в Sinlex" width="1024" height="574" loading="lazy" decoding="async">
+            <div class="product-shot__caption">
+              <span>Литьё</span>
+              <p>Для литейных задач можно показать модель, припуски, усадку, материал и параметры партии.</p>
             </div>
-            <div class="order-preview__panel order-preview__panel--wide">
-              <span class="order-preview__label">Комментарий менеджера</span>
-              <p>Проверяем материал, партию и требования к обработке. После уточнения технологичности зафиксируем условия изготовления.</p>
-            </div>
-          </div>
+          </article>
         </div>
       </section>
 
@@ -196,6 +187,7 @@
             <span>Партия</span>
             <span>Требования</span>
             <span>Сроки</span>
+            <span>Литьё и припуски</span>
           </div>
         </div>
       </section>
@@ -214,14 +206,15 @@
         <div class="story-card reveal">
           <div class="story-inner">
             <span class="badge">Производственные задачи</span>
-            <h2 id="production-title">Подходит для единичных деталей и небольших партий</h2>
+            <h2 id="production-title">Подходит для мехобработки, литья и небольших партий</h2>
             <div class="story-text">
-              <p>Корпусные детали, крышки, плиты, кронштейны, фланцы, валы и другие изделия по чертежам или 3D-моделям.</p>
+              <p>Корпусные детали, крышки, плиты, кронштейны, фланцы, валы, литые заготовки и другие изделия по чертежам или 3D-моделям.</p>
               <p>Sinlex делает заказ понятным для клиента: от первого файла до статуса изготовления и закрывающих документов.</p>
             </div>
             <div class="capability-list" aria-label="Типовые направления">
               <article class="capability-card"><span>Фрезеровка</span><p>Корпуса, крышки, плиты, кронштейны и посадочные поверхности.</p></article>
               <article class="capability-card"><span>Токарка</span><p>Валы, фланцы, втулки и детали вращения по чертежу.</p></article>
+              <article class="capability-card"><span>Литьё</span><p>Оценка литых заготовок, припусков, усадки, материала и партии.</p></article>
               <article class="capability-card"><span>Материалы</span><p>Сталь, алюминий, нержавеющая сталь, титан и спецзаготовки.</p></article>
               <article class="capability-card"><span>Партии</span><p>Единичные детали, опытные образцы и небольшие производственные партии.</p></article>
             </div>
