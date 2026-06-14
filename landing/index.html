@@ -169,11 +169,15 @@
               </ul>
             </div>
           </article>
-          <article class="product-shot product-shot--default-three">
-            <div class="product-shot__caption product-shot__caption--glass product-default-three">
-              <span>Three.js</span>
-              <h3>Быстрая визуальная проверка 3D-геометрии</h3>
-              <canvas id="three-default-viewer" width="520" height="360" aria-label="Дефолтная 3D-модель Three.js"></canvas>
+          <article class="product-shot product-shot--casting-model">
+            <div class="product-shot__caption product-shot__caption--glass product-casting-model">
+              <span>Припуск 3 мм</span>
+              <h3>Покажите запас на обработку прямо на литой детали</h3>
+              <p>Включите припуск, чтобы увидеть оранжевую заготовку вокруг модели и быстрее обсудить технологический запас до запуска заявки.</p>
+              <div class="product-casting-model__viewer">
+                <canvas id="three-casting-viewer" width="520" height="360" aria-label="3D-модель литой детали с припуском"></canvas>
+                <button class="product-casting-model__button" type="button" data-allowance-toggle>Припуск</button>
+              </div>
             </div>
           </article>
         </div>

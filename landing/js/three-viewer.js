@@ -2,6 +2,7 @@ import * as THREE from "../assets/vendor/three/three.module.js";
 import { GLTFLoader } from "../assets/vendor/three/addons/loaders/GLTFLoader.js";
 
 const MODEL_URL = "assets/models/compressor-wheel.glb";
+const CASTING_MODEL_URL = "assets/models/casting.glb";
 
 function initThreeViewer() {
   const canvas = document.getElementById("three-viewer");
@@ -176,8 +177,9 @@ function initThreeViewer() {
   requestAnimationFrame(animate);
 }
 
-function initDefaultThreeViewer() {
-  const canvas = document.getElementById("three-default-viewer");
+function initCastingViewer() {
+  const canvas = document.getElementById("three-casting-viewer");
+  const allowanceButton = document.querySelector("[data-allowance-toggle]");
 
   if (!canvas) return;
 
@@ -200,16 +202,101 @@ function initDefaultThreeViewer() {
   light.position.set(4, 6, 5);
   scene.add(light);
 
-  const model = new THREE.Mesh(
-    new THREE.TorusKnotGeometry(0.72, 0.22, 160, 24),
-    new THREE.MeshStandardMaterial({
+  const modelGroup = new THREE.Group();
+  modelGroup.rotation.x = 0.36;
+  modelGroup.rotation.y = -0.42;
+  scene.add(modelGroup);
+
+  let model = null;
+  let allowanceModel = null;
+
+  function applyCastingMaterial(object) {
+    const material = new THREE.MeshStandardMaterial({
       color: 0xb7c0ca,
-      metalness: 0.42,
-      roughness: 0.36
-    })
+      metalness: 0.38,
+      roughness: 0.38
+    });
+
+    object.traverse(function (child) {
+      if (!child.isMesh) return;
+      child.material = material;
+    });
+  }
+
+  function applyAllowanceMaterial(object) {
+    const material = new THREE.MeshStandardMaterial({
+      color: 0xf97316,
+      metalness: 0.08,
+      roughness: 0.46,
+      transparent: true,
+      opacity: 0.38,
+      depthWrite: false,
+      side: THREE.DoubleSide
+    });
+
+    object.traverse(function (child) {
+      if (!child.isMesh) return;
+      child.material = material;
+    });
+  }
+
+  function fitCastingModel(object) {
+    const box = new THREE.Box3().setFromObject(object);
+    const size = box.getSize(new THREE.Vector3());
+    const center = box.getCenter(new THREE.Vector3());
+    const maxDim = Math.max(size.x, size.y, size.z) || 1;
+    const scale = 1.8 / maxDim;
+
+    object.position.sub(center);
+    object.scale.setScalar(scale);
+    camera.position.set(0, 0, 3.2);
+    camera.lookAt(0, 0, 0);
+    camera.updateProjectionMatrix();
+
+    return size;
+  }
+
+  function allowanceScaleFor(size) {
+    const maxDim = Math.max(size.x, size.y, size.z) || 1;
+    const allowance = maxDim > 20 ? 6 : maxDim * 0.08;
+
+    return new THREE.Vector3(
+      size.x > 0 ? (size.x + allowance) / size.x : 1,
+      size.y > 0 ? (size.y + allowance) / size.y : 1,
+      size.z > 0 ? (size.z + allowance) / size.z : 1
+    );
+  }
+
+  const loader = new GLTFLoader();
+  loader.load(
+    CASTING_MODEL_URL,
+    function (gltf) {
+      model = gltf.scene;
+      applyCastingMaterial(model);
+      const size = fitCastingModel(model);
+
+      allowanceModel = model.clone(true);
+      applyAllowanceMaterial(allowanceModel);
+      allowanceModel.scale.multiply(allowanceScaleFor(size));
+      allowanceModel.visible = false;
+
+      modelGroup.add(allowanceModel);
+      modelGroup.add(model);
+    },
+    undefined,
+    function (error) {
+      console.error("Failed to load casting 3D model", error);
+    }
   );
-  model.rotation.x = 0.35;
-  scene.add(model);
+
+  if (allowanceButton) {
+    allowanceButton.addEventListener("click", function () {
+      if (!allowanceModel) return;
+
+      allowanceModel.visible = !allowanceModel.visible;
+      allowanceButton.classList.toggle("is-active", allowanceModel.visible);
+    });
+  }
 
   function onResize() {
     const box = canvas.getBoundingClientRect();
@@ -226,8 +313,7 @@ function initDefaultThreeViewer() {
     requestAnimationFrame(animate);
     const dt = (time - lastTime) / 1000;
     lastTime = time;
-    model.rotation.y += dt * 0.22;
-    model.rotation.z += dt * 0.08;
+    if (model) modelGroup.rotation.y += dt * 0.18;
     renderer.render(scene, camera);
   }
   requestAnimationFrame(animate);
@@ -236,9 +322,9 @@ function initDefaultThreeViewer() {
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", function () {
     initThreeViewer();
-    initDefaultThreeViewer();
+    initCastingViewer();
   });
 } else {
   initThreeViewer();
-  initDefaultThreeViewer();
+  initCastingViewer();
 }
