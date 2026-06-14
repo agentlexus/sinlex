@@ -22,6 +22,7 @@ function initThreeViewer() {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   renderer.setSize(width, height, false);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.setClearColor(0x000000, 0);
 
   scene.add(new THREE.HemisphereLight(0xffffff, 0xe8eef5, 1.35));
 
@@ -131,7 +132,8 @@ function initThreeViewer() {
     const x = pos.x || 0;
     const y = pos.y || 0;
     viewYaw += (x - prevX) * 0.004;
-    spinGroup.rotateOnAxis(spinAxis, (y - prevY) * 0.006);
+    viewPitch += (y - prevY) * 0.004;
+    viewPitch = Math.max(-1.05, Math.min(1.05, viewPitch));
     viewGroup.rotation.set(viewPitch, viewYaw, 0, "YXZ");
     prevX = x;
     prevY = y;
