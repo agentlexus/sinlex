@@ -3,6 +3,7 @@ import { GLTFLoader } from "../assets/vendor/three/addons/loaders/GLTFLoader.js"
 
 const MODEL_URL = "assets/models/compressor-wheel.glb";
 const CASTING_MODEL_URL = "assets/models/casting.glb";
+const CASTING_ALLOWANCE_MODEL_URL = "assets/models/casting_3mm.glb";
 
 function initThreeViewer() {
   const canvas = document.getElementById("three-viewer");
@@ -209,6 +210,7 @@ function initCastingViewer() {
 
   let model = null;
   let allowanceModel = null;
+  let castingTransform = null;
 
   function applyCastingMaterial(object) {
     const material = new THREE.MeshStandardMaterial({
@@ -240,31 +242,19 @@ function initCastingViewer() {
     });
   }
 
-  function fitCastingModel(object) {
+  function fitCastingModel(object, targetTransform) {
     const box = new THREE.Box3().setFromObject(object);
     const size = box.getSize(new THREE.Vector3());
     const center = box.getCenter(new THREE.Vector3());
-    const maxDim = Math.max(size.x, size.y, size.z) || 1;
-    const scale = 1.8 / maxDim;
+    const scale = targetTransform ? targetTransform.scale : 1.8 / (Math.max(size.x, size.y, size.z) || 1);
 
-    object.position.sub(center);
+    object.position.sub(targetTransform ? targetTransform.center : center);
     object.scale.setScalar(scale);
     camera.position.set(0, 0, 3.2);
     camera.lookAt(0, 0, 0);
     camera.updateProjectionMatrix();
 
-    return size;
-  }
-
-  function allowanceScaleFor(size) {
-    const maxDim = Math.max(size.x, size.y, size.z) || 1;
-    const allowance = maxDim > 20 ? 6 : maxDim * 0.08;
-
-    return new THREE.Vector3(
-      size.x > 0 ? (size.x + allowance) / size.x : 1,
-      size.y > 0 ? (size.y + allowance) / size.y : 1,
-      size.z > 0 ? (size.z + allowance) / size.z : 1
-    );
+    return { center, scale };
   }
 
   const loader = new GLTFLoader();
@@ -273,19 +263,28 @@ function initCastingViewer() {
     function (gltf) {
       model = gltf.scene;
       applyCastingMaterial(model);
-      const size = fitCastingModel(model);
-
-      allowanceModel = model.clone(true);
-      applyAllowanceMaterial(allowanceModel);
-      allowanceModel.scale.multiply(allowanceScaleFor(size));
-      allowanceModel.visible = false;
-
-      modelGroup.add(allowanceModel);
+      castingTransform = fitCastingModel(model);
+      if (allowanceModel) fitCastingModel(allowanceModel, castingTransform);
       modelGroup.add(model);
     },
     undefined,
     function (error) {
       console.error("Failed to load casting 3D model", error);
+    }
+  );
+
+  loader.load(
+    CASTING_ALLOWANCE_MODEL_URL,
+    function (gltf) {
+      allowanceModel = gltf.scene;
+      applyAllowanceMaterial(allowanceModel);
+      if (castingTransform) fitCastingModel(allowanceModel, castingTransform);
+      allowanceModel.visible = false;
+      modelGroup.add(allowanceModel);
+    },
+    undefined,
+    function (error) {
+      console.error("Failed to load casting allowance 3D model", error);
     }
   );
 
