@@ -48,4 +48,5 @@ for service in "${SERVICES[@]}"; do
   echo "$service is active"
 done
 
-echo "Sinlex deploy complete: $(git rev-parse --short HEAD)"
+deployed_rev=$(sudo -u "$DEPLOY_USER" git rev-parse --short HEAD)
+echo "Sinlex deploy complete: $deployed_rev"
