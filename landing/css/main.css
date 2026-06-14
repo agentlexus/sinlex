@@ -1963,27 +1963,8 @@ body.legal-modal-open {
   position: relative;
   min-height: 20rem;
   overflow: hidden;
-  border-radius: 24px;
-  background:
-    radial-gradient(circle at 35% 20%, rgba(45,212,191,0.20), transparent 32%),
-    linear-gradient(135deg, #0f172a 0%, #111827 48%, #0f766e 140%);
-}
-
-.product-three__viewer::before {
-  content: "Интерактивный предпросмотр";
-  position: absolute;
-  top: 1rem;
-  left: 1rem;
-  z-index: 1;
-  padding: 0.42rem 0.65rem;
-  border: 1px solid rgba(255,255,255,0.18);
-  border-radius: 999px;
-  background: rgba(15,23,42,0.52);
-  color: rgba(255,255,255,0.78);
-  font-size: 0.74rem;
-  font-weight: 700;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  border-radius: 20px;
+  background: #fff;
 }
 
 .product-three__viewer canvas {
@@ -1991,11 +1972,6 @@ body.legal-modal-open {
   height: 100% !important;
   min-height: 20rem;
   display: block;
-  cursor: grab;
-}
-
-.product-three__viewer canvas:active {
-  cursor: grabbing;
 }
 
 .product-three__copy {

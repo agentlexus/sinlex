@@ -395,7 +395,7 @@
     if (!canvas) return;
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x0f172a);
+    scene.background = new THREE.Color(0xffffff);
 
     const rect = canvas.getBoundingClientRect();
     const width = rect.width || 1024;
@@ -407,59 +407,22 @@
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     renderer.setSize(width, height, false);
 
-    scene.add(new THREE.HemisphereLight(0xffffff, 0x334155, 0.85));
+    scene.add(new THREE.HemisphereLight(0xffffff, 0xb0b0b0, 1));
 
-    const keyLight = new THREE.DirectionalLight(0xffffff, 0.75);
+    const keyLight = new THREE.DirectionalLight(0xffffff, 0.8);
     keyLight.position.set(5, 10, 7);
     scene.add(keyLight);
 
-    const fillLight = new THREE.DirectionalLight(0x9ee7dd, 0.35);
-    fillLight.position.set(-4, -2, 3);
-    scene.add(fillLight);
-
-    const model = new THREE.Group();
+    const model = new THREE.Mesh(
+      new THREE.TorusKnotGeometry(0.72, 0.22, 160, 24),
+      new THREE.MeshNormalMaterial()
+    );
     let isDragging = false;
     let prevX = 0;
     let prevY = 0;
     let rotY = 0;
     let rotX = 0.25;
 
-    const metal = new THREE.MeshStandardMaterial({
-      color: 0x9ca3af,
-      metalness: 0.78,
-      roughness: 0.24
-    });
-    const accent = new THREE.MeshStandardMaterial({
-      color: 0x2dd4bf,
-      metalness: 0.35,
-      roughness: 0.38,
-      transparent: true,
-      opacity: 0.34
-    });
-
-    const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.48, 0.42, 64), metal);
-    hub.rotation.x = Math.PI / 2;
-    model.add(hub);
-
-    const rim = new THREE.Mesh(new THREE.TorusGeometry(0.9, 0.055, 18, 96), metal);
-    rim.rotation.x = Math.PI / 2;
-    model.add(rim);
-
-    const bladeGeometry = new THREE.BoxGeometry(0.12, 0.8, 0.05);
-    for (let i = 0; i < 14; i += 1) {
-      const blade = new THREE.Mesh(bladeGeometry, metal);
-      const angle = (i / 14) * Math.PI * 2;
-      blade.position.set(Math.cos(angle) * 0.58, Math.sin(angle) * 0.58, 0);
-      blade.rotation.z = angle + 0.55;
-      blade.rotation.x = 0.45;
-      blade.scale.set(0.95, 1, 1);
-      model.add(blade);
-    }
-
-    const envelope = new THREE.Mesh(new THREE.TorusGeometry(0.92, 0.035, 16, 96), accent);
-    envelope.rotation.x = Math.PI / 2;
-    model.add(envelope);
-    model.rotation.x = 0.25;
     scene.add(model);
 
     function pointerPosition(event) {
