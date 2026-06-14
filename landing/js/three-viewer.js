@@ -33,12 +33,18 @@ function initThreeViewer() {
   fillLight.position.set(-4, -2, 5);
   scene.add(fillLight);
 
+  const viewGroup = new THREE.Group();
+  const spinGroup = new THREE.Group();
+  viewGroup.rotation.x = 0.25;
+  viewGroup.rotation.y = -0.15;
+  viewGroup.add(spinGroup);
+  scene.add(viewGroup);
+
   let isDragging = false;
   let prevX = 0;
   let prevY = 0;
-  let rotX = 0.25;
-  let rotY = 0;
   let model = null;
+  let spinAxis = new THREE.Vector3(0, 0, 1);
 
   function fitModelToView(object) {
     const box = new THREE.Box3().setFromObject(object);
@@ -49,7 +55,7 @@ function initThreeViewer() {
 
     object.position.sub(center);
     object.scale.setScalar(scale);
-    object.rotation.x = rotX;
+    spinAxis = findDetailAxis(size);
 
     const fittedBox = new THREE.Box3().setFromObject(object);
     const fittedSize = fittedBox.getSize(new THREE.Vector3());
@@ -57,6 +63,18 @@ function initThreeViewer() {
     camera.position.set(0, 0, Math.max(cameraDistance, 3));
     camera.lookAt(0, 0, 0);
     camera.updateProjectionMatrix();
+  }
+
+  function findDetailAxis(size) {
+    const dimensions = [
+      { axis: new THREE.Vector3(1, 0, 0), value: size.x },
+      { axis: new THREE.Vector3(0, 1, 0), value: size.y },
+      { axis: new THREE.Vector3(0, 0, 1), value: size.z }
+    ];
+    dimensions.sort(function (a, b) {
+      return a.value - b.value;
+    });
+    return dimensions[0].axis;
   }
 
   function applyDefaultMaterial(object) {
@@ -82,7 +100,7 @@ function initThreeViewer() {
       model = gltf.scene;
       applyDefaultMaterial(model);
       fitModelToView(model);
-      scene.add(model);
+      spinGroup.add(model);
     },
     undefined,
     function (error) {
@@ -110,9 +128,8 @@ function initThreeViewer() {
     const pos = pointerPosition(event);
     const x = pos.x || 0;
     const y = pos.y || 0;
-    rotX += (x - prevX) * 0.003;
-    rotY += (y - prevY) * 0.003;
-    rotY = Math.max(-1.2, Math.min(1.2, rotY));
+    viewGroup.rotateY((x - prevX) * 0.003);
+    viewGroup.rotateX((y - prevY) * 0.003);
     prevX = x;
     prevY = y;
   }
@@ -143,11 +160,7 @@ function initThreeViewer() {
     requestAnimationFrame(animate);
     const dt = (time - lastTime) / 1000;
     lastTime = time;
-    if (model && !isDragging) rotX += dt * 0.15;
-    if (model) {
-      model.rotation.x = rotX;
-      model.rotation.y = rotY;
-    }
+    if (model && !isDragging) spinGroup.rotateOnAxis(spinAxis, dt * 0.2);
     renderer.render(scene, camera);
   }
   requestAnimationFrame(animate);
