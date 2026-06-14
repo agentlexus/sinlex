@@ -23,21 +23,21 @@ function initThreeViewer() {
   renderer.setSize(width, height, false);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
 
-  scene.add(new THREE.HemisphereLight(0xffffff, 0xdbe4ef, 1.25));
+  scene.add(new THREE.HemisphereLight(0xffffff, 0xe8eef5, 1.35));
 
-  const keyLight = new THREE.DirectionalLight(0xffffff, 1.15);
+  const keyLight = new THREE.DirectionalLight(0xffffff, 1.35);
   keyLight.position.set(5, 10, 7);
   scene.add(keyLight);
 
-  const fillLight = new THREE.DirectionalLight(0x7dd3fc, 0.25);
+  const fillLight = new THREE.DirectionalLight(0xbfdbfe, 0.35);
   fillLight.position.set(-4, -2, 5);
   scene.add(fillLight);
 
   let isDragging = false;
   let prevX = 0;
   let prevY = 0;
-  let rotZ = 0;
   let rotX = 0.25;
+  let rotY = 0;
   let model = null;
 
   function fitModelToView(object) {
@@ -61,10 +61,10 @@ function initThreeViewer() {
 
   function applyDefaultMaterial(object) {
     const material = new THREE.MeshStandardMaterial({
-      color: 0x8b98a8,
-      metalness: 0.38,
-      roughness: 0.42,
-      envMapIntensity: 0.6
+      color: 0xb7c0ca,
+      metalness: 0.52,
+      roughness: 0.32,
+      envMapIntensity: 0.85
     });
 
     object.traverse(function (child) {
@@ -110,9 +110,9 @@ function initThreeViewer() {
     const pos = pointerPosition(event);
     const x = pos.x || 0;
     const y = pos.y || 0;
-    rotZ += (x - prevX) * 0.003;
-    rotX += (y - prevY) * 0.003;
-    rotX = Math.max(-1.2, Math.min(1.2, rotX));
+    rotX += (x - prevX) * 0.003;
+    rotY += (y - prevY) * 0.003;
+    rotY = Math.max(-1.2, Math.min(1.2, rotY));
     prevX = x;
     prevY = y;
   }
@@ -143,10 +143,10 @@ function initThreeViewer() {
     requestAnimationFrame(animate);
     const dt = (time - lastTime) / 1000;
     lastTime = time;
-    if (model && !isDragging) rotZ += dt * 0.15;
+    if (model && !isDragging) rotX += dt * 0.15;
     if (model) {
-      model.rotation.z = rotZ;
       model.rotation.x = rotX;
+      model.rotation.y = rotY;
     }
     renderer.render(scene, camera);
   }
