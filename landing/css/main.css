@@ -1939,6 +1939,9 @@ body.legal-modal-open {
 .product-shot--three {
   grid-column: 1 / -1;
   min-height: auto;
+  overflow: visible;
+  background: transparent;
+  box-shadow: none;
 }
 
 .product-three {
