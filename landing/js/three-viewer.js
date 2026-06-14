@@ -43,6 +43,8 @@ function initThreeViewer() {
   let isDragging = false;
   let prevX = 0;
   let prevY = 0;
+  let viewPitch = 0.25;
+  let viewYaw = -0.15;
   let model = null;
   let spinAxis = new THREE.Vector3(0, 0, 1);
 
@@ -51,7 +53,7 @@ function initThreeViewer() {
     const size = box.getSize(new THREE.Vector3());
     const center = box.getCenter(new THREE.Vector3());
     const maxDim = Math.max(size.x, size.y, size.z) || 1;
-    const scale = 2.2 / maxDim;
+    const scale = 1.95 / maxDim;
 
     object.position.sub(center);
     object.scale.setScalar(scale);
@@ -128,8 +130,10 @@ function initThreeViewer() {
     const pos = pointerPosition(event);
     const x = pos.x || 0;
     const y = pos.y || 0;
-    viewGroup.rotateY((x - prevX) * 0.003);
-    viewGroup.rotateX((y - prevY) * 0.003);
+    viewYaw += (x - prevX) * 0.004;
+    viewPitch += (y - prevY) * 0.004;
+    viewPitch = Math.max(-1.1, Math.min(1.1, viewPitch));
+    viewGroup.rotation.set(viewPitch, viewYaw, 0, "YXZ");
     prevX = x;
     prevY = y;
   }
