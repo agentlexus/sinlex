@@ -1,0 +1,50 @@
+name: Deploy Sinlex
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: sinlex-production-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to production server
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      SINLEX_SSH_HOST: ${{ secrets.SINLEX_SSH_HOST }}
+      SINLEX_SSH_USER: ${{ secrets.SINLEX_SSH_USER }}
+      SINLEX_SSH_PORT: ${{ secrets.SINLEX_SSH_PORT }}
+      SINLEX_SSH_KEY: ${{ secrets.SINLEX_SSH_KEY }}
+    steps:
+      - name: Check deploy secrets
+        id: secrets
+        shell: bash
+        run: |
+          if [[ -z "${SINLEX_SSH_HOST}" || -z "${SINLEX_SSH_USER}" || -z "${SINLEX_SSH_KEY}" ]]; then
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "Deploy secrets are not configured. Skipping deploy."
+            exit 0
+          fi
+          echo "ready=true" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy over SSH
+        if: steps.secrets.outputs.ready == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          port="${SINLEX_SSH_PORT:-22}"
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SINLEX_SSH_KEY" > ~/.ssh/sinlex_production_key
+          chmod 600 ~/.ssh/sinlex_production_key
+          ssh-keyscan -p "$port" "$SINLEX_SSH_HOST" >> ~/.ssh/known_hosts
+          ssh -i ~/.ssh/sinlex_production_key \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=yes \
+            -p "$port" \
+            "$SINLEX_SSH_USER@$SINLEX_SSH_HOST" \
+            "echo 'Deploy requested by GitHub Actions'"

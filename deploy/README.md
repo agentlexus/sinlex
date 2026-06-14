@@ -7,6 +7,7 @@ They are versioned as templates/source files and are not applied automatically b
 - `systemd/sinlex-server.service` - FastAPI service.
 - `systemd/sinlex-streamlit.service` - Streamlit UI service.
 - `sync_landing.sh` - syncs repository `landing/` into live `/var/www/landing/` and validates nginx.
+- `deploy_server.sh` - fetches `origin/main`, resets the working tree, syncs landing, validates nginx, and restarts Sinlex services.
 
 The live server still uses:
 
