@@ -53,6 +53,8 @@ function initThreeViewer() {
   let prevY = 0;
   let model = null;
   let spinAxis = new THREE.Vector3(0, 0, 1);
+  const screenXAxis = new THREE.Vector3(1, 0, 0);
+  const screenYAxis = new THREE.Vector3(0, 1, 0);
 
   function fitModelToView(object) {
     const box = new THREE.Box3().setFromObject(object);
@@ -136,8 +138,8 @@ function initThreeViewer() {
     const pos = pointerPosition(event);
     const x = pos.x || 0;
     const y = pos.y || 0;
-    viewGroup.rotateY((x - prevX) * 0.003);
-    viewGroup.rotateX((y - prevY) * 0.003);
+    viewGroup.rotateOnWorldAxis(screenYAxis, (x - prevX) * 0.003);
+    viewGroup.rotateOnWorldAxis(screenXAxis, (y - prevY) * 0.003);
     prevX = x;
     prevY = y;
   }
