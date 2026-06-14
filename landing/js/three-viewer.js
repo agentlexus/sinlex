@@ -229,13 +229,21 @@ function initCastingViewer() {
   }
 
   function applyAllowanceMaterial(object) {
-    const material = new THREE.MeshBasicMaterial({
+    const material = new THREE.MeshStandardMaterial({
       color: 0xf97316,
+      emissive: 0x7c2d12,
+      emissiveIntensity: 0.18,
+      metalness: 0.04,
+      roughness: 0.5,
+      flatShading: true,
       side: THREE.DoubleSide
     });
 
     object.traverse(function (child) {
       if (!child.isMesh) return;
+      if (child.geometry && child.geometry.computeVertexNormals) {
+        child.geometry.computeVertexNormals();
+      }
       child.material = material;
     });
   }
