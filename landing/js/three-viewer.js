@@ -9,7 +9,7 @@ function initThreeViewer() {
   if (!canvas) return;
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0xffffff);
+  scene.background = null;
 
   const rect = canvas.getBoundingClientRect();
   const width = rect.width || 1024;
@@ -53,7 +53,7 @@ function initThreeViewer() {
     const size = box.getSize(new THREE.Vector3());
     const center = box.getCenter(new THREE.Vector3());
     const maxDim = Math.max(size.x, size.y, size.z) || 1;
-    const scale = 1.95 / maxDim;
+    const scale = 1.65 / maxDim;
 
     object.position.sub(center);
     object.scale.setScalar(scale);
@@ -131,8 +131,7 @@ function initThreeViewer() {
     const x = pos.x || 0;
     const y = pos.y || 0;
     viewYaw += (x - prevX) * 0.004;
-    viewPitch += (y - prevY) * 0.004;
-    viewPitch = Math.max(-1.1, Math.min(1.1, viewPitch));
+    spinGroup.rotateOnAxis(spinAxis, (y - prevY) * 0.006);
     viewGroup.rotation.set(viewPitch, viewYaw, 0, "YXZ");
     prevX = x;
     prevY = y;
@@ -164,7 +163,7 @@ function initThreeViewer() {
     requestAnimationFrame(animate);
     const dt = (time - lastTime) / 1000;
     lastTime = time;
-    if (model && !isDragging) spinGroup.rotateOnAxis(spinAxis, dt * 0.2);
+    if (model && !isDragging) spinGroup.rotateOnAxis(spinAxis, -dt * 0.2);
     renderer.render(scene, camera);
   }
   requestAnimationFrame(animate);
