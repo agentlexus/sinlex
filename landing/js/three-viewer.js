@@ -38,7 +38,7 @@ function initThreeViewer() {
   const spinGroup = new THREE.Group();
   const grid = new THREE.GridHelper(3.2, 16, 0x64748b, 0x94a3b8);
   grid.rotation.z = Math.PI / 2;
-  grid.position.x = 0.2;
+  grid.position.x = 0;
   grid.material.transparent = true;
   grid.material.opacity = 0.28;
   viewGroup.rotation.x = 0.62;
