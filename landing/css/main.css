@@ -2016,20 +2016,6 @@ body.legal-modal-open {
   will-change: transform, opacity;
 }
 
-.reveal.visible .product-three__copy::before,
-.reveal.visible .product-shot__caption--glass::before {
-  transform-origin: 50% 50%;
-  animation: liquid-glass-current 1.05s cubic-bezier(0.16, 1, 0.3, 1) both;
-  will-change: transform, opacity;
-}
-
-.reveal.visible .product-three__copy::after,
-.reveal.visible .product-shot__caption--glass::after {
-  transform-origin: 50% 50%;
-  animation: liquid-glass-ripple 0.95s cubic-bezier(0.16, 1, 0.3, 1) both;
-  will-change: transform, opacity;
-}
-
 @keyframes liquid-glass-enter {
   0% {
     opacity: 0;
@@ -2045,43 +2031,9 @@ body.legal-modal-open {
   }
 }
 
-@keyframes liquid-glass-current {
-  0% {
-    opacity: 0;
-    transform: translate3d(-34%, 18%, 0) rotate(-6deg) scale(1.18, 0.82);
-  }
-  46% {
-    opacity: 0.9;
-    transform: translate3d(7%, -5%, 0) rotate(3deg) scale(0.96, 1.08);
-  }
-  100% {
-    opacity: 1;
-    transform: translate3d(0, 0, 0) rotate(0) scale(1);
-  }
-}
-
-@keyframes liquid-glass-ripple {
-  0% {
-    opacity: 0;
-    transform: translate3d(-62%, 0, 0) scaleX(0.35);
-  }
-  44% {
-    opacity: 0.95;
-    transform: translate3d(14%, 0, 0) scaleX(1.14);
-  }
-  100% {
-    opacity: 1;
-    transform: translate3d(0, 0, 0) scaleX(1);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .reveal.visible .product-three__copy,
-  .reveal.visible .product-shot__caption--glass,
-  .reveal.visible .product-three__copy::before,
-  .reveal.visible .product-shot__caption--glass::before,
-  .reveal.visible .product-three__copy::after,
-  .reveal.visible .product-shot__caption--glass::after {
+  .reveal.visible .product-shot__caption--glass {
     animation: none;
   }
 }
