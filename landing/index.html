@@ -144,6 +144,7 @@
             <div class="product-three">
               <div class="product-three__viewer" aria-label="Интерактивный 3D-просмотр детали">
                 <canvas id="three-viewer" width="720" height="520"></canvas>
+                <div class="product-three__debug" id="three-debug-status">3D debug: waiting</div>
               </div>
               <div class="product-three__copy">
                 <span>3D и параметры</span>
@@ -367,6 +368,10 @@
   // #region agent log
   (function () {
     const ENDPOINT = "http://127.0.0.1:7444/ingest/7c6644a2-5a2c-4a98-9204-9341cbab9ed4";
+    window.__sinlexThreeStatus = function (message) {
+      const node = document.getElementById("three-debug-status");
+      if (node) node.textContent = "3D debug: " + message;
+    };
     window.__sinlexDebugLog = function (hypothesisId, message, data) {
       fetch(ENDPOINT, {
         method: "POST",
@@ -383,6 +388,7 @@
       }).catch(function () {});
     };
     window.addEventListener("error", function (event) {
+      window.__sinlexThreeStatus && window.__sinlexThreeStatus("window error: " + event.message);
       window.__sinlexDebugLog("H7,H8", "window error", {
         message: event.message,
         source: event.filename,
@@ -396,6 +402,7 @@
       threeRevision: window.THREE && window.THREE.REVISION,
       readyState: document.readyState
     });
+    window.__sinlexThreeStatus("script reached, THREE=" + (typeof window.THREE !== "undefined"));
   })();
   // #endregion
   function initThreeViewer() {
@@ -407,8 +414,14 @@
       readyState: document.readyState
     });
     // #endregion
-    if (!canvas) return;
-    if (typeof THREE === "undefined") return;
+    if (!canvas) {
+      window.__sinlexThreeStatus && window.__sinlexThreeStatus("canvas not found");
+      return;
+    }
+    if (typeof THREE === "undefined") {
+      window.__sinlexThreeStatus && window.__sinlexThreeStatus("THREE undefined");
+      return;
+    }
 
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0xffffff);
@@ -426,10 +439,18 @@
       cssHeight: getComputedStyle(canvas).height
     });
     // #endregion
+    window.__sinlexThreeStatus && window.__sinlexThreeStatus("canvas " + rect.width + "x" + rect.height + ", THREE " + THREE.REVISION);
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
     camera.position.set(0, 0, 3);
 
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    let renderer;
+    try {
+      renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+      window.__sinlexThreeStatus && window.__sinlexThreeStatus("renderer created");
+    } catch (error) {
+      window.__sinlexThreeStatus && window.__sinlexThreeStatus("renderer error: " + error.message);
+      throw error;
+    }
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     renderer.setSize(width, height, false);
 
@@ -528,6 +549,7 @@
           rendererConnected: renderer.domElement.isConnected
         });
         // #endregion
+        window.__sinlexThreeStatus && window.__sinlexThreeStatus("first render ok " + canvas.width + "x" + canvas.height);
       }
     }
     requestAnimationFrame(animate);
