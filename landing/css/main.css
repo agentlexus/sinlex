@@ -1918,16 +1918,6 @@ body.legal-modal-open {
   border-radius: 30px;
   background: #fff;
   box-shadow: 0 2px 8px rgba(26,29,38,0.06), 0 24px 70px rgba(26,29,38,0.10);
-  transition: transform 0.2s cubic-bezier(0.22,1,0.36,1), box-shadow 0.2s ease;
-}
-
-.product-shot:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 4px 12px rgba(26,29,38,0.08), 0 32px 90px rgba(26,29,38,0.14);
-}
-
-.product-shot--status {
-  grid-column: span 1;
 }
 
 .product-shot__frame {
@@ -2323,9 +2313,6 @@ body.legal-modal-open {
   }
   .product-shot-grid {
     grid-template-columns: 1fr;
-  }
-  .product-shot--status {
-    grid-column: auto;
   }
   .product-three {
     grid-template-columns: 1fr;
