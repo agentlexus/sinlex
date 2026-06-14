@@ -46,12 +46,7 @@ nohup.out
 *.log
 
 # Generated artifacts and heavy CAD/mesh files
-*.glb
 *.stl
-*.step
-*.STEP
-*.stp
-*.STP
 *.iges
 *.IGES
 *.igs
