@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>Готово</title></head>
+<body style="font-family:system-ui,sans-serif;padding:24px;max-width:480px">
+<h2 style="color:#137333">Чертёж загружен</h2>
+<p><b>%%SAFE_NAME%%</b> — %%KB%% КБ</p>
+<p>Вернитесь на вкладку с проектом и нажмите <b>«Проверить загрузку»</b>, затем
+<b>«Анализировать чертёж»</b>.</p>
+<script>
+if (window.opener && !window.opener.closed) {
+  try { window.opener.location.reload(); } catch (e) {}
+  setTimeout(function() { window.close(); }, 1200);
+}
+</script>
+</body></html>

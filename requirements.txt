@@ -1,0 +1,14 @@
+streamlit
+openai
+requests
+pdf2image
+fastapi
+uvicorn
+trimesh
+cascadio
+python-multipart
+numpy
+opencv-python
+pytesseract
+# Опционально для drawing_analysis OCR (этап 2): scripts/install_drawing_ocr.sh
+# paddlepaddle paddleocr easyocr

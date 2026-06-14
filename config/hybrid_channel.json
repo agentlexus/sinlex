@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "active_channel": "email_logistics",
+  "channels": {
+    "email_logistics": {
+      "enabled": true
+    },
+    "max_suffler": {
+      "enabled": false
+    }
+  }
+}

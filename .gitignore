@@ -1,0 +1,76 @@
+# Secrets and local environment
+.env
+.env.*
+!.env.example
+secrets.env
+secrets.env.*
+!secrets.env.example
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+
+# Python caches and local runtimes
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Virtual environments and package caches
+.conda/
+.venv/
+venv/
+env/
+node_modules/
+
+# Streamlit/session state
+.sessions/
+.streamlit/
+
+# Runtime data: users, uploads, orders, generated analyses
+accounts.json
+orders/
+projects/
+casting/
+data/
+drawings/
+temp/
+logs/
+nohup.out
+*.log
+
+# Generated artifacts and heavy CAD/mesh files
+*.glb
+*.stl
+*.step
+*.STEP
+*.stp
+*.STP
+*.iges
+*.IGES
+*.igs
+*.IGS
+
+# Backups and archives
+_archive/
+backup/
+backups/
+*.backup*
+*.bak
+*.tar
+*.tar.gz
+*.tgz
+*.zip
+*.7z
+landing/index.backup-*.html
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

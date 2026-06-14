@@ -1,0 +1,19 @@
+[Unit]
+Description=Sinlex Streamlit UI
+After=network.target sinlex-server.service
+Wants=sinlex-server.service
+
+[Service]
+Type=simple
+User=sinlex
+Group=sinlex
+WorkingDirectory=/opt/sinlex
+Environment=HOME=/opt/sinlex
+EnvironmentFile=-/opt/sinlex/.env
+EnvironmentFile=-/opt/sinlex/secrets.env
+ExecStart=/opt/sinlex/.conda/envs/sinlex/bin/streamlit run /opt/sinlex/app.py --server.port=8501 --server.address=127.0.0.1 --server.baseUrlPath=app --server.headless=true
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

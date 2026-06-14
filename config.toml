@@ -1,0 +1,15 @@
+[server]
+# Глобальный потолок (PDF и др.). STEP ограничен 6 МБ в file_uploader — см. docs/TZ-step-upload-limits.md
+maxUploadSize = 200
+maxMessageSize = 220
+port = 8501
+address = "127.0.0.1"
+baseUrlPath = ""
+enableCORS = false
+enableXsrfProtection = false
+enableWebsocketCompression = false
+
+[browser]
+serverAddress = "sinlex.tech"
+serverPort = 443
+gatherUsageStats = false

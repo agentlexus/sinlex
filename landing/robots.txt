@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /app/
+Disallow: /api/
+Disallow: /reset-cache.html
+
+Sitemap: https://sinlex.tech/sitemap.xml

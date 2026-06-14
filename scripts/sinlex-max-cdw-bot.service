@@ -1,0 +1,16 @@
+[Unit]
+Description=Agent Sinlex messenger bot — отключён
+After=network.target sinlex-server.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/sinlex
+EnvironmentFile=-/opt/sinlex/.env
+ExecStart=/usr/bin/python3 /opt/sinlex/max_cdw_bot.py
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

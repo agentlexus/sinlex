@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="/js/landing-boot.js" defer></script>
+  <title>Sinlex — заказ деталей в производство</title>
+  <meta name="description" content="Закажите изготовление деталей без лишней переписки: загрузите чертеж или 3D-модель, получите понятное сопровождение, согласуйте условия и отслеживайте заказ в личном кабинете Sinlex.">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <link rel="canonical" href="https://sinlex.tech/">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="ru_RU">
+  <meta property="og:site_name" content="Sinlex">
+  <meta property="og:title" content="Sinlex — заказ деталей в производство">
+  <meta property="og:description" content="Sinlex помогает быстро оформить заказ на изготовление деталей: загрузка чертежей и 3D-моделей, сопровождение менеджера, документы, статусы и контроль производства.">
+  <meta property="og:url" content="https://sinlex.tech/">
+  <meta property="og:image" content="https://sinlex.tech/assets/logo.svg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Sinlex — заказ деталей в производство">
+  <meta name="twitter:description" content="Загрузите чертеж или 3D-модель, согласуйте заказ и отслеживайте изготовление детали в личном кабинете Sinlex.">
+  <meta name="theme-color" content="#ffffff">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Serif+Text:ital@0;1&family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/main.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Sinlex",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Web",
+    "url": "https://sinlex.tech/",
+    "description": "Сервис для заказа деталей в производство: загрузка чертежей и 3D-моделей, сопровождение менеджера, документы и статусы изготовления.",
+    "provider": {
+      "@type": "Organization",
+      "name": "Sinlex",
+      "url": "https://sinlex.ru/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <div class="bg-scene" aria-hidden="true">
+    <figure class="bg-mountains bg-enter-z">
+      <img src="assets/mountains-bg.webp" srcset="assets/mountains-bg.webp 1200w" sizes="100vw" alt="" width="1200" height="667" decoding="async" fetchpriority="low">
+    </figure>
+  </div>
+  <div class="bg-blur" aria-hidden="true"></div>
+
+  <header class="site-sticky-bar" aria-hidden="true">
+    <div class="site-sticky-bar__inner">
+      <a class="site-sticky-bar__logo" href="/" aria-label="Sinlex — на главную">
+        <img src="assets/logo_text_2.png" alt="Sinlex" width="121" height="19" decoding="async">
+      </a>
+      <button type="button" class="btn-login" id="btn-login-sticky">Вход</button>
+      <button type="button" class="btn-login" data-register-open>Регистрация</button>
+    </div>
+  </header>
+
+  <div class="page">
+    <header class="top-bar">
+      <div class="top-bar-inner">
+        <button type="button" class="btn-login" id="btn-login">Вход</button>
+        <button type="button" class="btn-login" data-register-open>Регистрация</button>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="hero platform-hero" aria-labelledby="hero-title">
+        <div class="hero-top">
+          <div class="brand reveal">
+            <div class="logo-wrap">
+              <img src="assets/logo.svg" alt="Sinlex" width="90" height="101" decoding="async">
+            </div>
+          </div>
+
+          <div class="reveal reveal-d1" id="hero-tag-anchor">
+            <span class="tag"><span class="pulse" aria-hidden="true"></span>Заказ деталей в производство</span>
+          </div>
+
+          <h1 id="hero-title" class="reveal reveal-d2">
+            Детали по вашим чертежам — <em>с понятным сроком, ценой и контролем</em>
+          </h1>
+
+          <p class="hero-sub reveal reveal-d3">
+            Sinlex помогает быстро передать деталь в изготовление: загрузите чертеж или 3D-модель, получите сопровождение менеджера и отслеживайте заказ в личном кабинете.
+          </p>
+
+          <div class="hero-actions reveal reveal-d4" aria-label="Основные действия">
+            <button type="button" class="btn-trial-free btn-hero-primary" data-register-open>Отправить деталь на оценку</button>
+            <a class="btn-login btn-hero-secondary" href="/app">Войти в кабинет</a>
+          </div>
+        </div>
+
+        <div class="social-proof reveal reveal-d5" aria-label="Для кого работает Sinlex">
+          <div class="avatars" aria-hidden="true"><span class="avatar"></span><span class="avatar"></span><span class="avatar"></span></div>
+          <p class="social-proof-text">Для инженеров, снабжения и производственных компаний, которым нужен быстрый и прозрачный заказ деталей</p>
+        </div>
+
+        <div class="features reveal reveal-d5 platform-flow" role="list" aria-label="Ключевые преимущества">
+          <article class="feature-card" role="listitem">
+            <div class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3v12m0 0l4-4m-4 4l-4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg></div>
+            <div class="feature-body"><h3>Быстрый старт заказа</h3><p>Передайте чертеж, STEP или комплект файлов без длинных брифов и ручной пересылки.</p></div>
+          </article>
+          <article class="feature-card" role="listitem">
+            <div class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h10"/></svg></div>
+            <div class="feature-body"><h3>Понятное согласование</h3><p>Менеджер уточнит технологичность, сроки, материал, партию и условия изготовления.</p></div>
+          </article>
+          <article class="feature-card" role="listitem">
+            <div class="feature-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/></svg></div>
+            <div class="feature-body"><h3>Контроль в кабинете</h3><p>Статус заказа, документы, реквизиты и переписка остаются в одной карточке.</p></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="story-section platform-section" aria-labelledby="platform-title">
+        <div class="story-card reveal">
+          <div class="story-inner">
+            <span class="badge">Для заказчика</span>
+            <h2 id="platform-title">Один вход для заказа деталей, документов и общения с производством</h2>
+            <div class="story-text">
+              <p>Обычно заказ начинается в почте: файлы теряются, версии чертежей путаются, статус приходится уточнять вручную. Sinlex собирает весь процесс в личном кабинете.</p>
+              <p>Вы видите, какие файлы отправлены, на каком этапе заказ, какие документы доступны и где идет переписка с менеджером.</p>
+            </div>
+            <div class="stats platform-stats">
+              <div class="stat-row"><span class="stat-label">Для кого:</span><span class="stat-value">КБ, снабжение, производство</span></div>
+              <div class="stat-row"><span class="stat-label">Что отправить:</span><span class="stat-value">чертеж, STEP, PDF</span></div>
+              <div class="stat-row"><span class="stat-label">Что получить:</span><span class="stat-value">заказ под контролем</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="benefits-section" aria-labelledby="benefits-title">
+        <div class="section-head reveal"><span class="badge">Почему удобно</span><h2 id="benefits-title">Меньше неопределенности до и после запуска в производство</h2></div>
+        <div class="benefits-grid reveal reveal-d1">
+          <article class="benefit-card"><h3>Быстрее получить ответ</h3><p>Не нужно собирать длинное письмо. Заявка создается из файлов и ключевых параметров детали.</p></article>
+          <article class="benefit-card"><h3>Проще сравнить и согласовать</h3><p>Материал, партия, сроки и требования фиксируются в заказе, а не расходятся по разным перепискам.</p></article>
+          <article class="benefit-card"><h3>Спокойнее контролировать</h3><p>Статус изготовления, документы и сообщения доступны там же, где был создан заказ.</p></article>
+        </div>
+      </section>
+
+      <section class="process-section" aria-labelledby="process-title">
+        <div class="section-head reveal"><span class="badge">Как это выглядит</span><h2 id="process-title">От заявки до готовой детали</h2></div>
+        <div class="process-grid reveal reveal-d1">
+          <article class="process-card"><span>01</span><h3>Вы отправляете файлы</h3><p>Чертеж, STEP, PDF или архив по детали и партии.</p></article>
+          <article class="process-card"><span>02</span><h3>Мы уточняем заказ</h3><p>Проверяем исходные данные, материал, требования и сроки.</p></article>
+          <article class="process-card"><span>03</span><h3>Согласуем условия</h3><p>Фиксируем параметры изготовления и документы для запуска.</p></article>
+          <article class="process-card"><span>04</span><h3>Вы видите статус</h3><p>Следите за заказом и общайтесь с менеджером в кабинете.</p></article>
+        </div>
+      </section>
+
+      <section class="story-section platform-section" aria-labelledby="production-title">
+        <div class="story-card reveal">
+          <div class="story-inner">
+            <span class="badge">Производственные задачи</span>
+            <h2 id="production-title">Подходит для единичных деталей и небольших партий</h2>
+            <div class="story-text">
+              <p>Корпусные детали, крышки, плиты, кронштейны, фланцы, валы и другие изделия по чертежам или 3D-моделям.</p>
+              <p>Sinlex делает заказ понятным для клиента: от первого файла до статуса изготовления и закрывающих документов.</p>
+            </div>
+            <div class="capability-list" aria-label="Типовые направления">
+              <span>Фрезерная обработка</span>
+              <span>Токарная обработка</span>
+              <span>Сталь и алюминий</span>
+              <span>Нержавеющая сталь</span>
+              <span>Титан</span>
+              <span>Партии и опытные образцы</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="story-section trust-section" aria-labelledby="trust-title">
+        <div class="story-card reveal">
+          <div class="story-inner">
+            <span class="badge">Прозрачность</span>
+            <h2 id="trust-title">Вы понимаете, что происходит с заказом</h2>
+            <p class="story-lead">Вместо разрозненных сообщений — единая карточка заказа: файлы, реквизиты, статус, документы и чат с менеджером.</p>
+            <div class="stats">
+              <div class="stat-row"><span class="stat-label">Файлы:</span><span class="stat-value">в одной заявке</span></div>
+              <div class="stat-row"><span class="stat-label">Коммуникация:</span><span class="stat-value">в карточке заказа</span></div>
+              <div class="stat-row"><span class="stat-label">Статус:</span><span class="stat-value">виден в кабинете</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="trial-cta reveal" aria-label="Отправить деталь на оценку">
+        <button type="button" class="btn-trial-free" data-register-open>Отправить деталь на оценку</button>
+        <p class="trial-cta-note">Регистрация займет несколько минут. После входа вы сможете создать заказ, загрузить файлы и продолжить общение с менеджером.</p>
+      </section>
+
+      <section class="faq" aria-labelledby="faq-title">
+        <h2 id="faq-title" class="reveal reveal-d1" style="margin-bottom:0"><span class="section-title-gradient">Вопросы <em style="font-style:italic;font-weight:500">перед заказом</em></span></h2>
+        <div class="faq-grid reveal reveal-d2">
+          <div class="faq-col">
+            <div class="faq-item"><button type="button" class="faq-question" aria-expanded="false"><span>Можно отправить только чертеж?</span><span class="faq-toggle" aria-hidden="true"></span></button><div class="faq-answer" role="region"><div class="faq-answer-inner">Да. Можно начать с PDF-чертежа или изображения. Если есть STEP или 3D-модель, приложите их тоже — так согласование пройдет быстрее.</div></div></div>
+            <div class="faq-item"><button type="button" class="faq-question" aria-expanded="false"><span>Вы сразу называете финальную цену?</span><span class="faq-toggle" aria-hidden="true"></span></button><div class="faq-answer" role="region"><div class="faq-answer-inner">Сначала формируется предварительная оценка и уточняются детали заказа. Финальные условия фиксируются после проверки требований, материала, партии и сроков.</div></div></div>
+          </div>
+          <div class="faq-col">
+            <div class="faq-item"><button type="button" class="faq-question" aria-expanded="false"><span>Где будет переписка по заказу?</span><span class="faq-toggle" aria-hidden="true"></span></button><div class="faq-answer" role="region"><div class="faq-answer-inner">В личном кабинете. Там же остаются файлы, статус, документы и история общения с менеджером.</div></div></div>
+            <div class="faq-item"><button type="button" class="faq-question" aria-expanded="false"><span>Для каких деталей подходит Sinlex?</span><span class="faq-toggle" aria-hidden="true"></span></button><div class="faq-answer" role="region"><div class="faq-answer-inner">Для деталей по чертежам и 3D-моделям: опытные образцы, единичные позиции и небольшие партии для производственных задач.</div></div></div>
+          </div>
+        </div>
+        <p class="faq-contact reveal">Связаться с нами: <a href="mailto:support@sinlex.tech">support@sinlex.tech</a></p>
+      </section>
+    </main>
+
+    <footer>
+      <div class="container footer-inner">
+        <p class="footer-copy">© ООО «Солид», 2026</p>
+        <nav class="footer-links" aria-label="Юридические ссылки">
+          <a href="#terms" data-legal-open="terms">Условия использования</a>
+          <a href="#privacy" data-legal-open="privacy">Политика конфиденциальности</a>
+        </nav>
+        <a href="mailto:support@sinlex.tech">support@sinlex.tech</a>
+      </div>
+    </footer>
+  </div>
+
+  <div class="modal micromodal-slide" id="register-modal" aria-hidden="true">
+    <div class="modal__overlay" tabindex="-1" data-micromodal-close>
+      <div class="modal__container" role="dialog" aria-modal="true" aria-labelledby="register-modal-title">
+        <header class="modal__header">
+          <h2 class="modal__title" id="register-modal-title">Регистрация</h2>
+          <button class="modal__close" aria-label="Закрыть" data-micromodal-close></button>
+        </header>
+        <main class="modal__content" id="register-modal-content">
+          <div id="reg-msg" class="reg-msg" role="status" aria-live="polite"></div>
+
+          <div class="reg-grid">
+            <label class="reg-field">
+              <span class="reg-label">Имя</span>
+              <input id="reg-first" class="reg-input" type="text" autocomplete="given-name" required>
+            </label>
+            <label class="reg-field">
+              <span class="reg-label">Фамилия</span>
+              <input id="reg-last" class="reg-input" type="text" autocomplete="family-name" required>
+            </label>
+          </div>
+
+          <label class="reg-field">
+            <span class="reg-label">Email</span>
+            <input id="reg-email" class="reg-input" type="email" autocomplete="email" required>
+          </label>
+
+          <label class="reg-field">
+            <span class="reg-label">Компания</span>
+            <input id="reg-company" class="reg-input" type="text" autocomplete="organization" required>
+          </label>
+
+          <label class="reg-field">
+            <span class="reg-label">Телефон</span>
+            <input id="reg-phone" class="reg-input" type="tel" autocomplete="tel" required>
+          </label>
+
+          <div class="reg-grid">
+            <label class="reg-field">
+              <span class="reg-label">Пароль</span>
+              <input id="reg-password" class="reg-input" type="password" autocomplete="new-password" minlength="8" required>
+            </label>
+            <label class="reg-field">
+              <span class="reg-label">Повтор пароля</span>
+              <input id="reg-password2" class="reg-input" type="password" autocomplete="new-password" minlength="8" required>
+            </label>
+          </div>
+
+          <label class="reg-field reg-field--code" id="reg-code-wrap" hidden>
+            <span class="reg-label">Код из письма</span>
+            <input id="reg-code" class="reg-input" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000">
+          </label>
+
+          <p class="reg-footnote">На email придёт код подтверждения. Код действует 15 минут.</p>
+        </main>
+        <footer class="modal__footer">
+          <button class="modal__btn modal__btn-primary" type="button" data-register-submit>Отправить</button>
+          <button class="modal__btn" type="button" data-micromodal-close>Отмена</button>
+        </footer>
+      </div>
+    </div>
+  </div>
+
+<div id="legal-modal" class="legal-modal" aria-hidden="true">
+    <div class="legal-modal__backdrop" data-legal-close tabindex="-1"></div>
+    <div class="legal-modal__panel" role="dialog" aria-modal="true" aria-labelledby="legal-modal-title">
+      <header class="legal-modal__header">
+        <h2 id="legal-modal-title">Политика конфиденциальности</h2>
+        <button type="button" class="legal-modal__close" data-legal-close aria-label="Закрыть">×</button>
+      </header>
+      <div class="legal-modal__body" data-legal-body></div>
+      <footer class="legal-modal__footer">
+        <button type="button" class="legal-modal__btn-close" data-legal-close>Закрыть</button>
+      </footer>
+    </div>
+  </div>
+
+
+  <script src="/js/parallax-bg.js" defer></script>
+  <script src="/js/scroll-inertia.js" defer></script>
+  <script src="/js/sticky-header.js" defer></script>
+  <script src="/js/legal-modal.js" defer></script>
+  <script src="/js/vendor/micromodal.min.js" defer></script>
+  <script src="/js/register-modal.js" defer></script>
+</body>
+</html>

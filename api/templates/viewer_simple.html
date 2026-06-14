@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head><title>3D Viewer</title></head>
+<body style="margin:0; overflow:hidden;">
+<script type="importmap">
+%%IMPORTMAP%%
+</script>
+<script type="module">
+import * as THREE from 'three';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
+
+const container = document.body;
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xffffff);
+const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.001, 10000);
+const renderer = new THREE.WebGLRenderer({antialias: true});
+renderer.setSize(container.clientWidth, container.clientHeight);
+container.appendChild(renderer.domElement);
+
+scene.add(new THREE.AmbientLight(0xffffff, 2.0));
+const l1 = new THREE.DirectionalLight(0xffffff, 1.5); l1.position.set(1,2,1); scene.add(l1);
+const l2 = new THREE.DirectionalLight(0xffffff, 1.2); l2.position.set(-1,-0.5,-1); scene.add(l2);
+const l3 = new THREE.DirectionalLight(0xffffff, 1.0); l3.position.set(0,1,-1); scene.add(l3);
+const l4 = new THREE.DirectionalLight(0xffffff, 0.8); l4.position.set(1,0,0); scene.add(l4);
+const l5 = new THREE.DirectionalLight(0xffffff, 0.8); l5.position.set(-1,0,0); scene.add(l5);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.08;
+
+const loader = new GLTFLoader();
+loader.load(%%MODEL_URL_JSON%%, (gltf) => {
+    const model = gltf.scene;
+    model.traverse((node) => {
+        if (node.isMesh) {
+            node.material = new THREE.MeshStandardMaterial({color: 0xd4d4d4, metalness: 0.8, roughness: 0.2});
+        }
+    });
+    const box = new THREE.Box3().setFromObject(model);
+    const center = box.getCenter(new THREE.Vector3());
+    model.position.sub(center);
+    const size = box.getSize(new THREE.Vector3());
+    const maxDim = Math.max(size.x, size.y, size.z);
+    camera.position.set(maxDim * 1.5, maxDim * 1.2, maxDim * 1.5);
+    controls.target.copy(center);
+    scene.add(model);
+}, undefined, (error) => {
+    console.error('Error loading model:', error);
+    container.innerHTML = 'Ошибка загрузки модели';
+});
+
+function animate() {
+    requestAnimationFrame(animate);
+    controls.update();
+    renderer.render(scene, camera);
+}
+animate();
+</script>
+</body>
+</html>

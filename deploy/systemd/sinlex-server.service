@@ -1,0 +1,18 @@
+[Unit]
+Description=Sinlex Visual API (FastAPI / uvicorn)
+After=network.target
+
+[Service]
+Type=simple
+User=sinlex
+Group=sinlex
+WorkingDirectory=/opt/sinlex
+Environment=HOME=/opt/sinlex
+EnvironmentFile=-/opt/sinlex/.env
+EnvironmentFile=-/opt/sinlex/secrets.env
+ExecStart=/opt/sinlex/.conda/envs/sinlex/bin/python -m uvicorn visual_server:app --host 127.0.0.1 --port 8001
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
