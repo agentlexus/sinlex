@@ -211,6 +211,9 @@ function initCastingViewer() {
   let model = null;
   let allowanceModel = null;
   let castingTransform = null;
+  let isCastingDragging = false;
+  let prevCastingX = 0;
+  let prevCastingY = 0;
 
   function applyCastingMaterial(object) {
     const material = new THREE.MeshStandardMaterial({
@@ -297,6 +300,52 @@ function initCastingViewer() {
     });
   }
 
+  function castingPointerPosition(event) {
+    const touch = event.touches && event.touches[0];
+    return {
+      x: touch ? touch.clientX : event.clientX,
+      y: touch ? touch.clientY : event.clientY
+    };
+  }
+
+  function onCastingPointerDown(event) {
+    isCastingDragging = true;
+    const pos = castingPointerPosition(event);
+    prevCastingX = pos.x || 0;
+    prevCastingY = pos.y || 0;
+  }
+
+  function onCastingPointerMove(event) {
+    if (!isCastingDragging) return;
+    if (event.cancelable) event.preventDefault();
+
+    const pos = castingPointerPosition(event);
+    const x = pos.x || 0;
+    const y = pos.y || 0;
+    modelGroup.rotation.y += (x - prevCastingX) * 0.004;
+    modelGroup.rotation.x += (y - prevCastingY) * 0.004;
+    prevCastingX = x;
+    prevCastingY = y;
+  }
+
+  function onCastingPointerUp() {
+    isCastingDragging = false;
+  }
+
+  function onCastingWheel(event) {
+    event.preventDefault();
+    camera.position.z = Math.max(2.1, Math.min(5.4, camera.position.z + event.deltaY * 0.002));
+    camera.updateProjectionMatrix();
+  }
+
+  canvas.addEventListener("mousedown", onCastingPointerDown);
+  window.addEventListener("mousemove", onCastingPointerMove);
+  window.addEventListener("mouseup", onCastingPointerUp);
+  canvas.addEventListener("touchstart", onCastingPointerDown, { passive: true });
+  window.addEventListener("touchmove", onCastingPointerMove, { passive: false });
+  window.addEventListener("touchend", onCastingPointerUp);
+  canvas.addEventListener("wheel", onCastingWheel, { passive: false });
+
   function onResize() {
     const box = canvas.getBoundingClientRect();
     const nextWidth = box.width || width;
@@ -312,7 +361,7 @@ function initCastingViewer() {
     requestAnimationFrame(animate);
     const dt = (time - lastTime) / 1000;
     lastTime = time;
-    if (model) modelGroup.rotation.y += dt * 0.18;
+    if (model && !isCastingDragging) modelGroup.rotation.y += dt * 0.18;
     renderer.render(scene, camera);
   }
   requestAnimationFrame(animate);

@@ -2167,6 +2167,11 @@ body.legal-modal-open {
   width: 100% !important;
   min-height: 14rem;
   display: block;
+  cursor: grab;
+}
+
+.product-casting-model__viewer canvas:active {
+  cursor: grabbing;
 }
 
 .product-casting-model__button {
