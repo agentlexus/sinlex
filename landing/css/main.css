@@ -1964,6 +1964,20 @@ body.legal-modal-open {
   display: block;
 }
 
+.product-three__debug {
+  position: absolute;
+  left: 0.75rem;
+  bottom: 0.75rem;
+  z-index: 2;
+  padding: 0.35rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.82);
+  color: #fff;
+  font-size: 0.72rem;
+  line-height: 1.2;
+  pointer-events: none;
+}
+
 .product-three__copy {
   display: flex;
   flex-direction: column;
