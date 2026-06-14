@@ -36,16 +36,16 @@ function initThreeViewer() {
 
   const viewGroup = new THREE.Group();
   const spinGroup = new THREE.Group();
-  viewGroup.rotation.x = 0.25;
-  viewGroup.rotation.y = -0.15;
+  viewGroup.rotation.x = 0.62;
+  viewGroup.rotation.y = 0.38;
   viewGroup.add(spinGroup);
   scene.add(viewGroup);
 
   let isDragging = false;
   let prevX = 0;
   let prevY = 0;
-  let viewPitch = 0.25;
-  let viewYaw = -0.15;
+  let viewPitch = 0.62;
+  let viewYaw = 0.38;
   let model = null;
   let spinAxis = new THREE.Vector3(0, 0, 1);
 

@@ -1957,8 +1957,25 @@ body.legal-modal-open {
   min-height: 20rem;
   overflow: hidden;
   border-radius: 20px;
+}
+
+.product-three__viewer canvas {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 20rem;
+  display: block;
+}
+
+.product-three__copy {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(1rem, 3vw, 1.4rem);
+  overflow: hidden;
   isolation: isolate;
   border: 1px solid rgba(255,255,255,0.86);
+  border-radius: 20px;
   background:
     radial-gradient(circle at 16% 12%, rgba(255,255,255,0.95), rgba(255,255,255,0.38) 24%, transparent 48%),
     radial-gradient(circle at 82% 72%, rgba(20,184,166,0.18), transparent 42%),
@@ -1968,11 +1985,11 @@ body.legal-modal-open {
   backdrop-filter: blur(22px) saturate(1.55);
 }
 
-.product-three__viewer::before {
+.product-three__copy::before {
   content: "";
   position: absolute;
   inset: 1px;
-  z-index: 0;
+  z-index: -1;
   border-radius: 19px;
   background:
     linear-gradient(145deg, rgba(255,255,255,0.72), rgba(255,255,255,0.10) 42%, rgba(20,184,166,0.10)),
@@ -1980,32 +1997,16 @@ body.legal-modal-open {
   pointer-events: none;
 }
 
-.product-three__viewer::after {
+.product-three__copy::after {
   content: "";
   position: absolute;
   left: 8%;
   right: 12%;
   top: 8%;
-  z-index: 0;
+  z-index: -1;
   height: 1px;
   background: linear-gradient(90deg, transparent, rgba(255,255,255,0.95), transparent);
   pointer-events: none;
-}
-
-.product-three__viewer canvas {
-  position: relative;
-  z-index: 1;
-  width: 100% !important;
-  height: 100% !important;
-  min-height: 20rem;
-  display: block;
-}
-
-.product-three__copy {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: clamp(1rem, 3vw, 1.4rem);
 }
 
 .product-three__copy span {
