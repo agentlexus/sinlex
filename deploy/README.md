@@ -6,6 +6,7 @@ They are versioned as templates/source files and are not applied automatically b
 - `nginx/sinlex.tech` - public landing, `/app/` Streamlit proxy, `/api/` FastAPI proxy.
 - `systemd/sinlex-server.service` - FastAPI service.
 - `systemd/sinlex-streamlit.service` - Streamlit UI service.
+- `sync_landing.sh` - syncs repository `landing/` into live `/var/www/landing/` and validates nginx.
 
 The live server still uses:
 
