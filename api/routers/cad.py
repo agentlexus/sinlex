@@ -4,26 +4,13 @@ import sys
 import tempfile
 
 from fastapi import APIRouter, File, Header, HTTPException, Query, UploadFile
-from fastapi.responses import FileResponse, Response
+from fastapi.responses import Response
 
 from api.auth_accounts import get_user_folder
 from api.config import BASE_DIR
-from api.services.step_convert import ensure_glb_from_stp, step_bytes_to_glb_response
+from api.services.step_convert import step_bytes_to_glb_response
 
 router = APIRouter(tags=["cad"])
-
-SHOWCASE_WHEEL_STP = (
-    "/opt/sinlex/projects/sinlex_admin/100.020_-_Колесо_компрессора/"
-    "100.020_-_Колесо_компрессора.stp"
-)
-SHOWCASE_WHEEL_GLB = os.path.join(BASE_DIR, "data", "showcase", "wheel-compressor.glb")
-
-
-@router.get("/showcase/wheel-compressor.glb")
-async def showcase_wheel_compressor_glb():
-    os.makedirs(os.path.dirname(SHOWCASE_WHEEL_GLB), exist_ok=True)
-    ensure_glb_from_stp(SHOWCASE_WHEEL_STP, SHOWCASE_WHEEL_GLB)
-    return FileResponse(SHOWCASE_WHEEL_GLB, media_type="model/gltf-binary")
 
 
 @router.post("/step-to-glb")

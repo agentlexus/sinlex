@@ -43,8 +43,6 @@ def create_app() -> FastAPI:
             return await call_next(request)
         if path.startswith("/embed/") or path.startswith("/static/"):
             return await call_next(request)
-        if path.startswith("/showcase/"):
-            return await call_next(request)
         if path.startswith("/payments/webhook/"):
             return await call_next(request)
         if path.startswith("/projects/glb/") and request.query_params.get("key") == API_KEY:
