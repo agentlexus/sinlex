@@ -362,6 +362,69 @@
   <script src="/js/register-modal.js" defer></script>
 
   <!-- Three.js 3D Viewer -->
+  <script>
+  // #region agent log
+  (function () {
+    const ENDPOINT = "http://127.0.0.1:7444/ingest/7c6644a2-5a2c-4a98-9204-9341cbab9ed4";
+    window.__sinlexDebugLog = function (hypothesisId, message, data) {
+      fetch(ENDPOINT, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Debug-Session-Id": "c43c14"
+        },
+        body: JSON.stringify({
+          sessionId: "c43c14",
+          runId: "pre-fix",
+          hypothesisId,
+          location: "landing/index.html:three-debug",
+          message,
+          data,
+          timestamp: Date.now()
+        })
+      }).catch(function () {});
+    };
+    window.addEventListener("error", function (event) {
+      window.__sinlexDebugLog("H1,H4", "window error before/around viewer", {
+        message: event.message,
+        source: event.filename,
+        lineno: event.lineno,
+        colno: event.colno
+      });
+    }, true);
+    window.addEventListener("unhandledrejection", function (event) {
+      window.__sinlexDebugLog("H1,H5", "unhandled rejection before/around viewer", {
+        reason: String(event.reason && (event.reason.message || event.reason))
+      });
+    });
+    window.__sinlexDebugLog("H4,H6", "debug bootstrap loaded", {
+      href: window.location.href,
+      protocol: window.location.protocol,
+      readyState: document.readyState
+    });
+    fetch("/api/static/three/three.module.js", { method: "GET" }).then(function (response) {
+      window.__sinlexDebugLog("H1,H6", "three module url probe", {
+        ok: response.ok,
+        status: response.status,
+        contentType: response.headers.get("content-type")
+      });
+    }).catch(function (error) {
+      window.__sinlexDebugLog("H1,H6", "three module url probe failed", {
+        message: String(error && (error.message || error))
+      });
+    });
+    document.addEventListener("DOMContentLoaded", function () {
+      const canvas = document.getElementById("three-viewer");
+      const rect = canvas ? canvas.getBoundingClientRect() : null;
+      window.__sinlexDebugLog("H2,H4", "dom ready canvas state", {
+        canvasFound: !!canvas,
+        rect: rect ? { width: rect.width, height: rect.height } : null,
+        documentReadyState: document.readyState
+      });
+    });
+  })();
+  // #endregion
+  </script>
   <script type="importmap">
   {
     "imports": {
@@ -371,9 +434,21 @@
   </script>
   <script type="module">
   import * as THREE from "three";
+  // #region agent log
+  window.__sinlexDebugLog && window.__sinlexDebugLog("H1", "three module imported", {
+    threeRevision: THREE.REVISION,
+    importMapUrl: "/api/static/three/three.module.js"
+  });
+  // #endregion
 
   function initThreeViewer() {
     const canvas = document.getElementById("three-viewer");
+    // #region agent log
+    window.__sinlexDebugLog && window.__sinlexDebugLog("H4", "initThreeViewer entry", {
+      canvasFound: !!canvas,
+      documentReadyState: document.readyState
+    });
+    // #endregion
     if (!canvas) return;
 
     const scene = new THREE.Scene();
@@ -382,6 +457,16 @@
     const rect = canvas.getBoundingClientRect();
     const width = rect.width || 1024;
     const height = rect.height || 627;
+    // #region agent log
+    window.__sinlexDebugLog && window.__sinlexDebugLog("H2", "canvas measured", {
+      rectWidth: rect.width,
+      rectHeight: rect.height,
+      fallbackWidth: width,
+      fallbackHeight: height,
+      clientWidth: canvas.clientWidth,
+      clientHeight: canvas.clientHeight
+    });
+    // #endregion
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
     camera.position.set(0, 0, 3);
 
@@ -399,6 +484,13 @@
       new THREE.TorusKnotGeometry(0.72, 0.22, 160, 24),
       new THREE.MeshNormalMaterial()
     );
+    // #region agent log
+    window.__sinlexDebugLog && window.__sinlexDebugLog("H3", "model created", {
+      geometryType: model.geometry.type,
+      materialType: model.material.type,
+      cameraPosition: camera.position.toArray()
+    });
+    // #endregion
     let isDragging = false;
     let prevX = 0;
     let prevY = 0;
@@ -456,6 +548,7 @@
     window.addEventListener("resize", onResize);
 
     let lastTime = 0;
+    let didLogFirstRender = false;
     function animate(time) {
       requestAnimationFrame(animate);
       const dt = (time - lastTime) / 1000;
@@ -466,6 +559,18 @@
         model.rotation.x = rotX;
       }
       renderer.render(scene, camera);
+      if (!didLogFirstRender) {
+        didLogFirstRender = true;
+        // #region agent log
+        window.__sinlexDebugLog && window.__sinlexDebugLog("H3,H5", "first render completed", {
+          canvasWidth: canvas.width,
+          canvasHeight: canvas.height,
+          sceneChildren: scene.children.length,
+          modelVisible: model.visible,
+          rendererDomConnected: renderer.domElement.isConnected
+        });
+        // #endregion
+      }
     }
     requestAnimationFrame(animate);
   }
