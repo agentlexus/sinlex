@@ -231,12 +231,10 @@ function initCastingViewer() {
   function applyAllowanceMaterial(object) {
     const material = new THREE.MeshStandardMaterial({
       color: 0xf97316,
-      metalness: 0.08,
-      roughness: 0.46,
-      transparent: true,
-      opacity: 0.38,
-      depthWrite: false,
-      side: THREE.DoubleSide
+      emissive: 0x7c2d12,
+      emissiveIntensity: 0.08,
+      metalness: 0.05,
+      roughness: 0.42
     });
 
     object.traverse(function (child) {
