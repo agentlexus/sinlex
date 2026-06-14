@@ -1,0 +1,10 @@
+[Unit]
+Description=Sinlex GitHub auto deploy
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+WorkingDirectory=/opt/sinlex
+ExecStart=/opt/sinlex/deploy/deploy_server.sh

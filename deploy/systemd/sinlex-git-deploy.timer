@@ -1,0 +1,12 @@
+[Unit]
+Description=Run Sinlex GitHub auto deploy periodically
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=1min
+AccuracySec=15s
+Persistent=true
+Unit=sinlex-git-deploy.service
+
+[Install]
+WantedBy=timers.target

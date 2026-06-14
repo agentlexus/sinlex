@@ -31,6 +31,14 @@ export GIT_SSH_COMMAND="ssh -i $GIT_KEY -o IdentitiesOnly=yes -o StrictHostKeyCh
 echo "Fetching origin/$BRANCH..."
 sudo -u "$DEPLOY_USER" env GIT_SSH_COMMAND="$GIT_SSH_COMMAND" git fetch origin "$BRANCH"
 
+local_rev=$(sudo -u "$DEPLOY_USER" git rev-parse HEAD)
+remote_rev=$(sudo -u "$DEPLOY_USER" git rev-parse "origin/$BRANCH")
+
+if [[ "$local_rev" == "$remote_rev" && "${SINLEX_DEPLOY_FORCE:-0}" != "1" ]]; then
+  echo "No deploy needed: local HEAD already matches origin/$BRANCH (${local_rev:0:7})"
+  exit 0
+fi
+
 echo "Resetting $REPO_ROOT to origin/$BRANCH..."
 sudo -u "$DEPLOY_USER" git reset --hard "origin/$BRANCH"
 
