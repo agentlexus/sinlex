@@ -1915,14 +1915,35 @@ body.legal-modal-open {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border: 1px solid rgba(26,29,38,0.08);
   border-radius: 30px;
-  background: rgba(255,255,255,0.84);
-  box-shadow: 0 24px 70px rgba(26,29,38,0.10);
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(26,29,38,0.06), 0 24px 70px rgba(26,29,38,0.10);
+  transition: transform 0.2s cubic-bezier(0.22,1,0.36,1), box-shadow 0.2s ease;
+}
+
+.product-shot:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(26,29,38,0.08), 0 32px 90px rgba(26,29,38,0.14);
 }
 
 .product-shot--large {
   grid-row: span 2;
+}
+
+.product-shot__frame {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  border-radius: 30px 30px 0 0;
+  background: #f8fafc;
+}
+
+.product-shot__frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.02) 0%, rgba(0,0,0,0) 40%);
+  pointer-events: none;
 }
 
 .product-shot img {
@@ -1939,33 +1960,25 @@ body.legal-modal-open {
 }
 
 .product-shot__caption {
-  position: absolute;
-  left: 1rem;
-  right: 1rem;
-  bottom: 1rem;
-  padding: 0.9rem 1rem;
-  border: 1px solid rgba(255,255,255,0.58);
-  border-radius: 20px;
-  background: rgba(255,255,255,0.82);
-  box-shadow: 0 14px 38px rgba(26,29,38,0.12);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  padding: 1.1rem 1.25rem;
+  border-top: 1px solid rgba(15,118,110,0.08);
+  background: #fff;
 }
 
 .product-shot__caption span {
   display: block;
   color: #0f766e;
-  font-size: 0.76rem;
+  font-size: 0.78rem;
   font-weight: 800;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
 .product-shot__caption p {
-  margin-top: 0.35rem;
-  color: #334155;
-  font-size: 0.88rem;
-  line-height: 1.4;
+  margin-top: 0.4rem;
+  color: #475569;
+  font-size: 0.92rem;
+  line-height: 1.45;
 }
 
 .tech-check-card {
@@ -2109,13 +2122,9 @@ body.legal-modal-open {
   .product-shot--large {
     min-height: auto;
   }
-  .product-shot img,
+  .product-shot__frame img,
   .product-shot--large img {
     min-height: 15rem;
-  }
-  .product-shot__caption {
-    position: static;
-    margin: 0.7rem;
   }
   .tech-check-list {
     grid-template-columns: 1fr;
@@ -2229,7 +2238,7 @@ body.legal-modal-open {
   .product-shot--large {
     grid-row: auto;
   }
-  .product-shot--large img {
+  .product-shot--large .product-shot__frame img {
     min-height: clamp(15rem, 70vw, 24rem);
   }
   .tech-check-card {
