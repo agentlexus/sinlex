@@ -2119,6 +2119,51 @@ body.legal-modal-open {
   line-height: 1.55;
 }
 
+.product-shot__caption--glass ul {
+  margin-top: 1rem;
+  display: grid;
+  gap: 0.55rem;
+  list-style: none;
+}
+
+.product-shot__caption--glass li {
+  position: relative;
+  padding-left: 1.15rem;
+  color: #334155;
+  font-size: 0.92rem;
+  line-height: 1.4;
+}
+
+.product-shot__caption--glass li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.56em;
+  width: 0.42rem;
+  height: 0.42rem;
+  border-radius: 999px;
+  background: #14b8a6;
+}
+
+.product-shot--default-three {
+  min-height: auto;
+  background: transparent;
+  box-shadow: none;
+}
+
+.product-default-three {
+  display: grid;
+  align-content: start;
+  gap: 0.85rem;
+}
+
+.product-default-three canvas {
+  width: 100% !important;
+  min-height: 14rem;
+  display: block;
+  border-radius: 16px;
+}
+
 .product-shot img {
   width: 100%;
   height: 100%;

@@ -176,8 +176,69 @@ function initThreeViewer() {
   requestAnimationFrame(animate);
 }
 
+function initDefaultThreeViewer() {
+  const canvas = document.getElementById("three-default-viewer");
+
+  if (!canvas) return;
+
+  const rect = canvas.getBoundingClientRect();
+  const width = rect.width || 520;
+  const height = rect.height || 360;
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
+  camera.position.set(0, 0, 3.2);
+
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setSize(width, height, false);
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.setClearColor(0x000000, 0);
+
+  scene.add(new THREE.HemisphereLight(0xffffff, 0xe8eef5, 1.2));
+
+  const light = new THREE.DirectionalLight(0xffffff, 1);
+  light.position.set(4, 6, 5);
+  scene.add(light);
+
+  const model = new THREE.Mesh(
+    new THREE.TorusKnotGeometry(0.72, 0.22, 160, 24),
+    new THREE.MeshStandardMaterial({
+      color: 0xb7c0ca,
+      metalness: 0.42,
+      roughness: 0.36
+    })
+  );
+  model.rotation.x = 0.35;
+  scene.add(model);
+
+  function onResize() {
+    const box = canvas.getBoundingClientRect();
+    const nextWidth = box.width || width;
+    const nextHeight = box.height || height;
+    camera.aspect = nextWidth / nextHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(nextWidth, nextHeight, false);
+  }
+  window.addEventListener("resize", onResize);
+
+  let lastTime = 0;
+  function animate(time) {
+    requestAnimationFrame(animate);
+    const dt = (time - lastTime) / 1000;
+    lastTime = time;
+    model.rotation.y += dt * 0.22;
+    model.rotation.z += dt * 0.08;
+    renderer.render(scene, camera);
+  }
+  requestAnimationFrame(animate);
+}
+
 if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", initThreeViewer);
+  document.addEventListener("DOMContentLoaded", function () {
+    initThreeViewer();
+    initDefaultThreeViewer();
+  });
 } else {
   initThreeViewer();
+  initDefaultThreeViewer();
 }
