@@ -206,6 +206,7 @@ function initCastingViewer() {
   const modelGroup = new THREE.Group();
   modelGroup.rotation.x = 0.36;
   modelGroup.rotation.y = -0.42;
+  modelGroup.position.y = 0.18;
   scene.add(modelGroup);
 
   let model = null;
@@ -256,7 +257,7 @@ function initCastingViewer() {
 
     object.position.sub(targetTransform ? targetTransform.center : center);
     object.scale.setScalar(scale);
-    camera.position.set(0, 0, 3.2);
+    camera.position.set(0, 0, 2.85);
     camera.lookAt(0, 0, 0);
     camera.updateProjectionMatrix();
 
