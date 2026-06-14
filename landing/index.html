@@ -84,13 +84,18 @@
           </h1>
 
           <p class="hero-sub reveal reveal-d3">
-            Sinlex помогает быстро передать деталь в изготовление: загрузите чертеж или 3D-модель, получите сопровождение менеджера и отслеживайте заказ в личном кабинете.
+            Загрузите чертеж, STEP или комплект файлов. Sinlex поможет быстро оформить заявку, получить предварительную оценку после проверки исходных данных и вести заказ в личном кабинете.
           </p>
 
           <div class="hero-actions reveal reveal-d4" aria-label="Основные действия">
             <button type="button" class="btn-trial-free btn-hero-primary" data-register-open>Отправить деталь на оценку</button>
             <a class="btn-login btn-hero-secondary" href="/app">Войти в кабинет</a>
           </div>
+          <ul class="hero-proof reveal reveal-d5" aria-label="Что можно сделать в Sinlex">
+            <li>Чертеж, STEP, PDF или архив</li>
+            <li>Ответ после проверки файлов</li>
+            <li>Статус и переписка в кабинете</li>
+          </ul>
         </div>
 
         <div class="social-proof reveal reveal-d5" aria-label="Для кого работает Sinlex">
@@ -132,12 +137,66 @@
         </div>
       </section>
 
+      <section class="product-preview-section" aria-labelledby="product-preview-title">
+        <div class="section-head reveal"><span class="badge">Кабинет заказа</span><h2 id="product-preview-title">Заявка выглядит как понятная рабочая карточка</h2></div>
+        <div class="order-preview reveal reveal-d1" aria-label="Пример карточки заказа">
+          <div class="order-preview__head">
+            <div>
+              <span class="order-preview__eyebrow">Заказ SIN-2048</span>
+              <h3>Кронштейн по чертежу и STEP</h3>
+            </div>
+            <span class="order-preview__status">Проверка файлов</span>
+          </div>
+          <div class="order-preview__grid">
+            <div class="order-preview__panel">
+              <span class="order-preview__label">Файлы</span>
+              <ul class="file-stack">
+                <li><span>STEP</span> bracket_v3.step</li>
+                <li><span>PDF</span> drawing_042.pdf</li>
+                <li><span>XLS</span> партия_20шт.xlsx</li>
+              </ul>
+            </div>
+            <div class="order-preview__panel">
+              <span class="order-preview__label">Этапы</span>
+              <ol class="status-track">
+                <li class="is-done">Файлы получены</li>
+                <li class="is-active">Проверка чертежа и STEP</li>
+                <li>Согласование условий</li>
+                <li>Запуск в производство</li>
+              </ol>
+            </div>
+            <div class="order-preview__panel order-preview__panel--wide">
+              <span class="order-preview__label">Комментарий менеджера</span>
+              <p>Проверяем материал, партию и требования к обработке. После уточнения технологичности зафиксируем условия изготовления.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section class="benefits-section" aria-labelledby="benefits-title">
         <div class="section-head reveal"><span class="badge">Почему удобно</span><h2 id="benefits-title">Меньше неопределенности до и после запуска в производство</h2></div>
         <div class="benefits-grid reveal reveal-d1">
-          <article class="benefit-card"><h3>Быстрее получить ответ</h3><p>Не нужно собирать длинное письмо. Заявка создается из файлов и ключевых параметров детали.</p></article>
-          <article class="benefit-card"><h3>Проще сравнить и согласовать</h3><p>Материал, партия, сроки и требования фиксируются в заказе, а не расходятся по разным перепискам.</p></article>
-          <article class="benefit-card"><h3>Спокойнее контролировать</h3><p>Статус изготовления, документы и сообщения доступны там же, где был создан заказ.</p></article>
+          <article class="benefit-card"><h3>Меньше ручной пересылки</h3><p>Файлы, параметры детали и комментарии попадают в заявку сразу, без длинной цепочки писем.</p></article>
+          <article class="benefit-card"><h3>Понятнее согласование</h3><p>Материал, партия, сроки и требования обсуждаются вокруг одной детали, а не в разрозненных сообщениях.</p></article>
+          <article class="benefit-card"><h3>Спокойнее сопровождать заказ</h3><p>После запуска проще вернуться к условиям, документам и истории решений по конкретной позиции.</p></article>
+        </div>
+      </section>
+
+      <section class="tech-check-section" aria-labelledby="tech-check-title">
+        <div class="tech-check-card reveal">
+          <div class="tech-check-copy">
+            <span class="badge">Перед запуском</span>
+            <h2 id="tech-check-title">Проверяем исходные данные, чтобы согласовать реалистичные условия</h2>
+            <p>Перед передачей заказа в работу команда смотрит чертеж, STEP/3D-модель, материал, партию, критичные требования и сроки. Это помогает быстрее перейти от набора файлов к понятной заявке.</p>
+          </div>
+          <div class="tech-check-list" aria-label="Что проверяем">
+            <span>Геометрия STEP</span>
+            <span>Чертеж и PDF</span>
+            <span>Материал</span>
+            <span>Партия</span>
+            <span>Требования</span>
+            <span>Сроки</span>
+          </div>
         </div>
       </section>
 
@@ -161,12 +220,10 @@
               <p>Sinlex делает заказ понятным для клиента: от первого файла до статуса изготовления и закрывающих документов.</p>
             </div>
             <div class="capability-list" aria-label="Типовые направления">
-              <span>Фрезерная обработка</span>
-              <span>Токарная обработка</span>
-              <span>Сталь и алюминий</span>
-              <span>Нержавеющая сталь</span>
-              <span>Титан</span>
-              <span>Партии и опытные образцы</span>
+              <article class="capability-card"><span>Фрезеровка</span><p>Корпуса, крышки, плиты, кронштейны и посадочные поверхности.</p></article>
+              <article class="capability-card"><span>Токарка</span><p>Валы, фланцы, втулки и детали вращения по чертежу.</p></article>
+              <article class="capability-card"><span>Материалы</span><p>Сталь, алюминий, нержавеющая сталь, титан и спецзаготовки.</p></article>
+              <article class="capability-card"><span>Партии</span><p>Единичные детали, опытные образцы и небольшие производственные партии.</p></article>
             </div>
           </div>
         </div>
@@ -176,12 +233,13 @@
         <div class="story-card reveal">
           <div class="story-inner">
             <span class="badge">Прозрачность</span>
-            <h2 id="trust-title">Вы понимаете, что происходит с заказом</h2>
-            <p class="story-lead">Вместо разрозненных сообщений — единая карточка заказа: файлы, реквизиты, статус, документы и чат с менеджером.</p>
+            <h2 id="trust-title">Производственные данные остаются в понятном контуре</h2>
+            <p class="story-lead">Вместо разрозненных сообщений — единая карточка заказа: файлы, реквизиты, статус, документы и чат с менеджером. Чертежи и 3D-модели используются только для обработки заявки и согласования изготовления.</p>
             <div class="stats">
-              <div class="stat-row"><span class="stat-label">Файлы:</span><span class="stat-value">в одной заявке</span></div>
-              <div class="stat-row"><span class="stat-label">Коммуникация:</span><span class="stat-value">в карточке заказа</span></div>
-              <div class="stat-row"><span class="stat-label">Статус:</span><span class="stat-value">виден в кабинете</span></div>
+              <div class="stat-row"><span class="stat-label">Компания:</span><span class="stat-value">ООО «Солид»</span></div>
+              <div class="stat-row"><span class="stat-label">Документы:</span><span class="stat-value">реквизиты и закрывающие материалы в заказе</span></div>
+              <div class="stat-row"><span class="stat-label">Файлы:</span><span class="stat-value">чертежи, STEP и переписка собраны в кабинете</span></div>
+              <div class="stat-row"><span class="stat-label">Доступ:</span><span class="stat-value">данные видны только участникам обработки заявки</span></div>
             </div>
           </div>
         </div>
@@ -200,7 +258,7 @@
             <div class="faq-item"><button type="button" class="faq-question" aria-expanded="false"><span>Вы сразу называете финальную цену?</span><span class="faq-toggle" aria-hidden="true"></span></button><div class="faq-answer" role="region"><div class="faq-answer-inner">Сначала формируется предварительная оценка и уточняются детали заказа. Финальные условия фиксируются после проверки требований, материала, партии и сроков.</div></div></div>
           </div>
           <div class="faq-col">
-            <div class="faq-item"><button type="button" class="faq-question" aria-expanded="false"><span>Где будет переписка по заказу?</span><span class="faq-toggle" aria-hidden="true"></span></button><div class="faq-answer" role="region"><div class="faq-answer-inner">В личном кабинете. Там же остаются файлы, статус, документы и история общения с менеджером.</div></div></div>
+            <div class="faq-item"><button type="button" class="faq-question" aria-expanded="false"><span>Где будет переписка по заказу?</span><span class="faq-toggle" aria-hidden="true"></span></button><div class="faq-answer" role="region"><div class="faq-answer-inner">В личном кабинете. Там же остаются исходные файлы, документы, решения по условиям и история общения с менеджером.</div></div></div>
             <div class="faq-item"><button type="button" class="faq-question" aria-expanded="false"><span>Для каких деталей подходит Sinlex?</span><span class="faq-toggle" aria-hidden="true"></span></button><div class="faq-answer" role="region"><div class="faq-answer-inner">Для деталей по чертежам и 3D-моделям: опытные образцы, единичные позиции и небольшие партии для производственных задач.</div></div></div>
           </div>
         </div>
@@ -228,6 +286,7 @@
           <button class="modal__close" aria-label="Закрыть" data-micromodal-close></button>
         </header>
         <main class="modal__content" id="register-modal-content">
+          <p class="reg-intro">После регистрации вы сможете создать заявку, загрузить чертежи и продолжить согласование с менеджером.</p>
           <div id="reg-msg" class="reg-msg" role="status" aria-live="polite"></div>
 
           <div class="reg-grid">
