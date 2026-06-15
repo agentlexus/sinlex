@@ -318,6 +318,7 @@ body.sticky-bar-visible .top-bar {
   flex-direction: column;
   align-items: center;
   min-height: 100vh;
+  margin-top: -50px;
 }
 
 .container {
