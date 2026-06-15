@@ -10,9 +10,9 @@
     translateZPerPx: 0,
     baseScale: 1,
     origin: "center bottom",
-    baseOffsetY: 118,
-    objectPosStart: 22,
-    objectPosEnd: 100,
+    baseOffsetY: 48,
+    objectPosStart: 8,
+    objectPosEnd: 88,
   };
 
   var ENTRANCE = {
