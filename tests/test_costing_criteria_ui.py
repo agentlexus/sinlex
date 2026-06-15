@@ -1,10 +1,20 @@
 """Тесты UI-хелперов критериев чертежа (CR-4 TZ)."""
 
+import importlib.util
+from pathlib import Path
+import sys
+import types
 import unittest
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "page_modules"))
+
+if importlib.util.find_spec("streamlit") is None:
+    sys.modules["streamlit"] = types.SimpleNamespace(session_state={})
 
 from page_modules.costing_ui import (
     _criteria_has_ui,
     build_criteria_table_rows,
+    compute_costing_snapshot,
     _modifier_summary_lines,
 )
 
@@ -35,6 +45,34 @@ class TestCriteriaUiHelpers(unittest.TestCase):
         lines = _modifier_summary_lines(mods, None)
         self.assertTrue(any("Шлифование" in ln for ln in lines))
         self.assertTrue(any("1.35" in ln for ln in lines))
+
+
+class TestCostingSnapshotMaterialCost(unittest.TestCase):
+    def test_material_cost_uses_full_blank_mass_and_chips_use_removed_mass(self):
+        snap = compute_costing_snapshot(
+            geometry={"part_family": "plate", "complexity": "средняя", "detail_index": 1.0},
+            dimensions={},
+            operations=["Фрезерная"],
+            model_volume=3_653_505.535,
+            params={
+                "wp": "Плита",
+                "d1": 85,
+                "l1": 500,
+                "w1": 500,
+                "h1": 20,
+                "cph": 3500,
+                "sm": "Алюминий Д16Т",
+                "batch_size": 1,
+                "mp": 700,
+            },
+            cam_rate_per_hour=0,
+        )
+
+        blank_kg = snap["bv"] * snap["den"] / 1_000_000
+        self.assertAlmostEqual(blank_kg, 13.55, places=2)
+        self.assertAlmostEqual(snap["mct"], 9485, places=0)
+        self.assertAlmostEqual(snap["tcm"], 3.65, places=2)
+        self.assertAlmostEqual(snap["cr"], 346, delta=1)
 
 
 if __name__ == "__main__":

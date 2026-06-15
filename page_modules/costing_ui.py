@@ -465,7 +465,7 @@ def compute_costing_snapshot(
     mhpu = mq["mhpu"]
     mht = mq["mht"]
     grind_price_mult = float(mq.get("grind_price_mult") or 1.0)
-    mct = rmkg * mp * batch_size
+    mct = (bv * den / 1_000_000) * mp * batch_size
     mcst = mht * cph
     if grind_price_mult > 1.0:
         mcst = mcst * grind_price_mult
