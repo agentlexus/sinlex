@@ -2010,10 +2010,15 @@ body.legal-modal-open {
 }
 
 .reveal.visible .product-three__copy,
+.reveal.visible .product-casting-process__frame,
 .reveal.visible .product-shot__caption--glass {
   transform-origin: 50% 64%;
   animation: liquid-glass-enter 0.82s cubic-bezier(0.16, 1, 0.3, 1) both;
   will-change: transform, opacity;
+}
+
+.reveal.visible .product-casting-process__copy {
+  animation-delay: 0.12s;
 }
 
 @keyframes liquid-glass-enter {
@@ -2033,6 +2038,7 @@ body.legal-modal-open {
 
 @media (prefers-reduced-motion: reduce) {
   .reveal.visible .product-three__copy,
+  .reveal.visible .product-casting-process__frame,
   .reveal.visible .product-shot__caption--glass {
     animation: none;
   }
@@ -2194,7 +2200,7 @@ body.legal-modal-open {
 
 .product-casting-process {
   display: grid;
-  grid-template-columns: minmax(0, 0.5fr) minmax(15rem, 1fr);
+  grid-template-columns: minmax(0, 0.7fr) minmax(15rem, 1fr);
   gap: 1.15rem;
   padding: 0;
   align-items: stretch;
