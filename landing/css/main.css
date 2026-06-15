@@ -2181,7 +2181,11 @@ body.legal-modal-open {
 }
 
 .product-shot--casting-process {
+  --casting-breakout: min(1180px, calc(100vw - 1.5rem));
   grid-column: 1 / -1;
+  width: var(--casting-breakout);
+  max-width: var(--casting-breakout);
+  margin-left: calc(50% - var(--casting-breakout) / 2);
   min-height: auto;
   overflow: visible;
   background: transparent;
@@ -2190,19 +2194,26 @@ body.legal-modal-open {
 
 .product-casting-process {
   display: grid;
-  grid-template-columns: minmax(0, 1.12fr) minmax(18rem, 0.88fr);
-  gap: 1rem;
-  padding: 0.85rem;
+  grid-template-columns: minmax(0, 1.62fr) minmax(15rem, 0.38fr);
+  gap: 1.15rem;
+  padding: 0;
+  align-items: stretch;
 }
 
 .product-casting-process__frame {
-  min-height: 19rem;
+  min-height: auto;
   border-radius: 20px;
+  background: #f8fafc;
   box-shadow: 0 18px 45px rgba(15,23,42,0.10);
 }
 
 .product-casting-process__frame img {
-  min-height: 19rem;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  display: block;
+  object-fit: contain;
+  object-position: left center;
   border-radius: 20px;
 }
 
@@ -2210,6 +2221,13 @@ body.legal-modal-open {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  align-self: stretch;
+}
+
+.product-casting-process__cta {
+  margin-top: 1.15rem;
+  align-self: flex-start;
+  text-decoration: none;
 }
 
 .product-casting-model {
@@ -2444,12 +2462,11 @@ body.legal-modal-open {
   .product-three__copy {
     padding: 0.8rem 0.7rem 1rem;
   }
-  .product-casting-process {
-    padding: 0.7rem;
+  .product-shot--casting-process {
+    --casting-breakout: calc(100vw - 1rem);
   }
-  .product-casting-process__frame,
-  .product-casting-process__frame img {
-    min-height: 15rem;
+  .product-casting-process__cta {
+    width: 100%;
   }
   .tech-check-list {
     grid-template-columns: 1fr;
