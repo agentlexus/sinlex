@@ -6,13 +6,13 @@
 
   var PARALLAX = {
     perspective: "1200px",
-    speedY: -0.038,
+    speedY: -0.042,
     translateZPerPx: 0,
     baseScale: 1,
     origin: "center bottom",
-    baseOffsetY: 72,
-    objectPosStart: 30,
-    objectPosEnd: 82,
+    baseOffsetY: 118,
+    objectPosStart: 22,
+    objectPosEnd: 100,
   };
 
   var ENTRANCE = {
@@ -32,7 +32,6 @@
   var scene = document.querySelector(".bg-scene");
   var layer = document.querySelector(".bg-mountains");
   var mountainImg = layer && layer.querySelector("img");
-  var bgBlur = document.querySelector(".bg-blur");
   if (!scene || !layer) {
     return;
   }
@@ -93,17 +92,8 @@
       layer.style.opacity = String(ENTRANCE.fromOpacity + (1 - ENTRANCE.fromOpacity) * e);
     }
 
-    var edgeFade = Math.min(1, Math.max(0.28, 0.28 + scrollRatio * 0.72));
+    var edgeFade = Math.max(0, 0.62 * (1 - scrollRatio));
     layer.style.setProperty("--mountain-edge-fade", edgeFade.toFixed(3));
-
-    if (bgBlur) {
-      var blurFade = Math.max(0, 1 - scrollRatio / 0.58);
-      bgBlur.style.opacity = blurFade.toFixed(3);
-    }
-
-    var sceneFade =
-      scrollRatio > 0.74 ? Math.max(0, 1 - (scrollRatio - 0.74) / 0.26) : 1;
-    scene.style.opacity = sceneFade.toFixed(3);
   }
 
   function onScroll() {
@@ -126,8 +116,6 @@
   if (reduced) {
     layer.classList.remove("bg-enter-z");
     layer.style.opacity = "";
-    if (bgBlur) bgBlur.style.opacity = "1";
-    scene.style.opacity = "1";
     layer.style.setProperty("--mountain-edge-fade", "0.55");
     if (mountainImg) {
       mountainImg.style.objectPosition = "center " + PARALLAX.objectPosStart + "%";
