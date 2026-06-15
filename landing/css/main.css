@@ -2194,7 +2194,7 @@ body.legal-modal-open {
 
 .product-casting-process {
   display: grid;
-  grid-template-columns: minmax(0, 1.62fr) minmax(15rem, 0.38fr);
+  grid-template-columns: minmax(0, 1fr) minmax(15rem, 0.38fr);
   gap: 1.15rem;
   padding: 0;
   align-items: stretch;
