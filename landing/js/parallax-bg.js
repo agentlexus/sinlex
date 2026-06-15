@@ -6,10 +6,13 @@
 
   var PARALLAX = {
     perspective: "1200px",
-    speedY: -0.052,
+    speedY: -0.038,
     translateZPerPx: 0,
     baseScale: 1,
     origin: "center bottom",
+    baseOffsetY: 72,
+    objectPosStart: 30,
+    objectPosEnd: 82,
   };
 
   var ENTRANCE = {
@@ -28,6 +31,7 @@
 
   var scene = document.querySelector(".bg-scene");
   var layer = document.querySelector(".bg-mountains");
+  var mountainImg = layer && layer.querySelector("img");
   var bgBlur = document.querySelector(".bg-blur");
   if (!scene || !layer) {
     return;
@@ -70,12 +74,20 @@
     var maxScroll = getMaxScroll();
     var scroll = Math.min(window.scrollY, maxScroll);
     var scrollRatio = maxScroll > 0 ? scroll / maxScroll : 0;
-    var ty = scroll * PARALLAX.speedY;
+    var baseOffset = PARALLAX.baseOffsetY * (1 - scrollRatio);
+    var ty = baseOffset + scroll * PARALLAX.speedY;
     var tz = scroll * PARALLAX.translateZPerPx + ENTRANCE.fromZ * (1 - e);
     var s = PARALLAX.baseScale * (ENTRANCE.fromScale + (1 - ENTRANCE.fromScale) * e);
+    var objectPosY =
+      PARALLAX.objectPosStart +
+      (PARALLAX.objectPosEnd - PARALLAX.objectPosStart) * scrollRatio;
 
     layer.style.transform =
       "translate3d(0, " + ty + "px, " + tz + "px) scale(" + s + ")";
+
+    if (mountainImg) {
+      mountainImg.style.objectPosition = "center " + objectPosY.toFixed(2) + "%";
+    }
 
     if (!entranceDone) {
       layer.style.opacity = String(ENTRANCE.fromOpacity + (1 - ENTRANCE.fromOpacity) * e);
@@ -90,7 +102,7 @@
     }
 
     var sceneFade =
-      scrollRatio > 0.62 ? Math.max(0, 1 - (scrollRatio - 0.62) / 0.38) : 1;
+      scrollRatio > 0.74 ? Math.max(0, 1 - (scrollRatio - 0.74) / 0.26) : 1;
     scene.style.opacity = sceneFade.toFixed(3);
   }
 
@@ -117,6 +129,9 @@
     if (bgBlur) bgBlur.style.opacity = "1";
     scene.style.opacity = "1";
     layer.style.setProperty("--mountain-edge-fade", "0.55");
+    if (mountainImg) {
+      mountainImg.style.objectPosition = "center " + PARALLAX.objectPosStart + "%";
+    }
     apply();
   } else {
     entranceLoop();
