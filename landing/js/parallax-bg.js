@@ -6,8 +6,7 @@
 
   var PARALLAX = {
     perspective: "1200px",
-    speedY: -0.0684,
-    maxScroll: 2400,
+    speedY: -0.052,
     translateZPerPx: 0,
     baseScale: 1,
     origin: "center bottom",
@@ -29,6 +28,7 @@
 
   var scene = document.querySelector(".bg-scene");
   var layer = document.querySelector(".bg-mountains");
+  var bgBlur = document.querySelector(".bg-blur");
   if (!scene || !layer) {
     return;
   }
@@ -47,6 +47,10 @@
     return 1 - Math.pow(1 - t, 2.8);
   }
 
+  function getMaxScroll() {
+    return Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+  }
+
   function entranceProgress() {
     if (entranceDone) {
       return 1;
@@ -63,7 +67,9 @@
 
   function apply() {
     var e = entranceProgress();
-    var scroll = Math.min(window.scrollY, PARALLAX.maxScroll);
+    var maxScroll = getMaxScroll();
+    var scroll = Math.min(window.scrollY, maxScroll);
+    var scrollRatio = maxScroll > 0 ? scroll / maxScroll : 0;
     var ty = scroll * PARALLAX.speedY;
     var tz = scroll * PARALLAX.translateZPerPx + ENTRANCE.fromZ * (1 - e);
     var s = PARALLAX.baseScale * (ENTRANCE.fromScale + (1 - ENTRANCE.fromScale) * e);
@@ -74,6 +80,18 @@
     if (!entranceDone) {
       layer.style.opacity = String(ENTRANCE.fromOpacity + (1 - ENTRANCE.fromOpacity) * e);
     }
+
+    var edgeFade = Math.min(1, Math.max(0.28, 0.28 + scrollRatio * 0.72));
+    layer.style.setProperty("--mountain-edge-fade", edgeFade.toFixed(3));
+
+    if (bgBlur) {
+      var blurFade = Math.max(0, 1 - scrollRatio / 0.58);
+      bgBlur.style.opacity = blurFade.toFixed(3);
+    }
+
+    var sceneFade =
+      scrollRatio > 0.62 ? Math.max(0, 1 - (scrollRatio - 0.62) / 0.38) : 1;
+    scene.style.opacity = sceneFade.toFixed(3);
   }
 
   function onScroll() {
@@ -96,6 +114,9 @@
   if (reduced) {
     layer.classList.remove("bg-enter-z");
     layer.style.opacity = "";
+    if (bgBlur) bgBlur.style.opacity = "1";
+    scene.style.opacity = "1";
+    layer.style.setProperty("--mountain-edge-fade", "0.55");
     apply();
   } else {
     entranceLoop();
