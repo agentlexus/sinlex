@@ -4,20 +4,28 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="/js/landing-boot.js" defer></script>
-  <title>Sinlex — заказ деталей в производство</title>
-  <meta name="description" content="Закажите изготовление деталей без лишней переписки: загрузите чертеж или 3D-модель, получите понятное сопровождение, согласуйте условия и отслеживайте заказ в личном кабинете Sinlex.">
-  <meta name="robots" content="index, follow, max-image-preview:large">
+  <title>Sinlex — металлообработка, литьё и заказ деталей по чертежам</title>
+  <meta name="description" content="Sinlex — сервис заказа металлообработки и литья: расчёт стоимости, изготовление деталей по чертежам, STEP и 3D-моделям. Загрузите файлы, согласуйте условия и ведите заказ в личном кабинете.">
+  <meta name="keywords" content="металлообработка, литьё, заказ деталей, изготовление по чертежам, расчёт стоимости, мехобработка, фрезеровка, токарка, STEP, 3D модель, производство деталей, литая заготовка, припуски">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <meta name="author" content="Sinlex">
   <link rel="canonical" href="https://sinlex.tech/">
+  <link rel="alternate" hreflang="ru" href="https://sinlex.tech/">
+  <link rel="alternate" hreflang="x-default" href="https://sinlex.tech/">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="ru_RU">
   <meta property="og:site_name" content="Sinlex">
-  <meta property="og:title" content="Sinlex — заказ деталей в производство">
-  <meta property="og:description" content="Sinlex помогает быстро оформить заказ на изготовление деталей: загрузка чертежей и 3D-моделей, сопровождение менеджера, документы, статусы и контроль производства.">
+  <meta property="og:title" content="Sinlex — металлообработка, литьё и заказ деталей по чертежам">
+  <meta property="og:description" content="Заказ металлообработки и литья с расчётом стоимости: загрузите чертёж или STEP, получите оценку и контролируйте изготовление деталей в личном кабинете.">
   <meta property="og:url" content="https://sinlex.tech/">
-  <meta property="og:image" content="https://sinlex.tech/assets/logo.svg">
+  <meta property="og:image" content="https://sinlex.tech/assets/screens/casting2.png">
+  <meta property="og:image:alt" content="Расчёт литья и заказ деталей в Sinlex">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Sinlex — заказ деталей в производство">
-  <meta name="twitter:description" content="Загрузите чертеж или 3D-модель, согласуйте заказ и отслеживайте изготовление детали в личном кабинете Sinlex.">
+  <meta name="twitter:title" content="Sinlex — металлообработка, литьё и заказ деталей по чертежам">
+  <meta name="twitter:description" content="Изготовление деталей по чертежам и 3D-моделям: расчёт, согласование и контроль заказа в одном кабинете.">
+  <meta name="twitter:image" content="https://sinlex.tech/assets/screens/casting2.png">
+  <meta name="twitter:image:alt" content="Расчёт литья и заказ деталей в Sinlex">
   <meta name="theme-color" content="#ffffff">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,17 +34,131 @@
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    "name": "Sinlex",
-    "applicationCategory": "BusinessApplication",
-    "operatingSystem": "Web",
-    "url": "https://sinlex.tech/",
-    "description": "Сервис для заказа деталей в производство: загрузка чертежей и 3D-моделей, сопровождение менеджера, документы и статусы изготовления.",
-    "provider": {
-      "@type": "Organization",
-      "name": "Sinlex",
-      "url": "https://sinlex.ru/"
-    }
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://sinlex.tech/#organization",
+        "name": "Sinlex",
+        "legalName": "ООО «Солид»",
+        "url": "https://sinlex.tech/",
+        "email": "support@sinlex.tech",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://sinlex.tech/assets/logo.svg"
+        }
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://sinlex.tech/#website",
+        "name": "Sinlex",
+        "url": "https://sinlex.tech/",
+        "inLanguage": "ru-RU",
+        "publisher": { "@id": "https://sinlex.tech/#organization" }
+      },
+      {
+        "@type": "SoftwareApplication",
+        "@id": "https://sinlex.tech/#application",
+        "name": "Sinlex",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web",
+        "url": "https://sinlex.tech/",
+        "inLanguage": "ru-RU",
+        "description": "Сервис заказа металлообработки и литья: расчёт стоимости, изготовление деталей по чертежам, STEP и 3D-моделям, сопровождение менеджера и контроль статуса заказа.",
+        "provider": { "@id": "https://sinlex.tech/#organization" },
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "RUB",
+          "description": "Регистрация и отправка заявки на расчёт изготовления"
+        }
+      },
+      {
+        "@type": "Service",
+        "@id": "https://sinlex.tech/#manufacturing-service",
+        "name": "Заказ металлообработки и литья по чертежам",
+        "serviceType": "Manufacturing",
+        "provider": { "@id": "https://sinlex.tech/#organization" },
+        "areaServed": "RU",
+        "availableChannel": {
+          "@type": "ServiceChannel",
+          "serviceUrl": "https://sinlex.tech/app",
+          "serviceType": "Online"
+        },
+        "description": "Изготовление деталей по чертежам и 3D-моделям: фрезеровка, токарная обработка, литьё, расчёт припусков, усадки, материала и стоимости партии.",
+        "hasOfferCatalog": {
+          "@type": "OfferCatalog",
+          "name": "Производственные услуги",
+          "itemListElement": [
+            { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Металлообработка на заказ" } },
+            { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Литьё и расчёт литых заготовок" } },
+            { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Изготовление деталей по чертежам и STEP" } },
+            { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Расчёт стоимости изготовления" } }
+          ]
+        }
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://sinlex.tech/#faq",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Можно отправить только чертеж?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Да. Можно начать с PDF-чертежа или изображения. Если есть STEP или 3D-модель, приложите их тоже — так согласование пройдет быстрее."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Вы сразу называете финальную цену?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Сначала формируется предварительная оценка и уточняются детали заказа. Финальные условия фиксируются после проверки требований, материала, партии и сроков."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Где будет переписка по заказу?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "В личном кабинете. Там же остаются исходные файлы, документы, решения по условиям и история общения с менеджером."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Для каких деталей подходит Sinlex?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Для деталей по чертежам и 3D-моделям: опытные образцы, единичные позиции и небольшие партии для производственных задач."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Можно заказать металлообработку или литьё через Sinlex?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Да. Sinlex подходит для заказа мехобработки, фрезеровки, токарки и литья. В кабинете можно загрузить чертёж или STEP, уточнить материал, партию, припуски и получить расчёт перед запуском изготовления."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Как рассчитывается стоимость изготовления?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "После загрузки файлов система и менеджер проверяют геометрию, технологию, материал и партию. Для литья учитываются усадка, припуски и масса заготовки. Сначала даётся предварительная оценка, финальные условия фиксируются после согласования."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Подходит ли сервис для заказа по чертежам без 3D-модели?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Да. Можно начать с PDF-чертежа или скана. Если позже появится STEP или 3D-модель, их можно добавить в карточку заказа для более точного расчёта и согласования."
+            }
+          }
+        ]
+      }
+    ]
   }
   </script>
 </head>
@@ -71,20 +193,20 @@
         <div class="hero-top">
           <div class="brand reveal">
             <div class="logo-wrap">
-              <img src="assets/logo.svg" alt="Sinlex" width="90" height="101" decoding="async">
+              <img src="assets/logo.svg" alt="Sinlex — заказ металлообработки и литья по чертежам" width="90" height="101" decoding="async">
             </div>
           </div>
 
           <div class="reveal reveal-d1" id="hero-tag-anchor">
-            <span class="tag"><span class="pulse" aria-hidden="true"></span>Заказ деталей в производство</span>
+            <span class="tag"><span class="pulse" aria-hidden="true"></span>Металлообработка, литьё и заказ деталей</span>
           </div>
 
           <h1 id="hero-title" class="reveal reveal-d2">
-            Детали по вашим чертежам — <em>с понятным сроком, ценой и контролем</em>
+            Изготовление деталей по чертежам — <em>металлообработка, литьё, расчёт и контроль заказа</em>
           </h1>
 
           <p class="hero-sub reveal reveal-d3">
-            Загрузите чертеж, STEP или комплект файлов. Sinlex поможет быстро оформить заявку, получить предварительную оценку после проверки исходных данных и вести заказ в личном кабинете.
+            Загрузите чертёж, STEP или комплект файлов. Sinlex поможет оформить заявку на металлообработку или литьё, получить предварительный расчёт после проверки исходных данных и вести заказ в личном кабинете.
           </p>
 
           <div class="hero-actions reveal reveal-d4" aria-label="Основные действия">
@@ -183,7 +305,7 @@
           <article class="product-shot product-shot--casting-process reveal reveal-d2">
             <div class="product-casting-process">
               <div class="product-shot__frame product-casting-process__frame">
-                <img src="assets/screens/casting2.png" alt="Расчет литья в Sinlex с выбором технологии, материала и стоимости" width="1200" height="720" loading="lazy" decoding="async">
+                <img src="assets/screens/casting2.png" alt="Расчёт литья и заказ металлообработки в Sinlex: выбор технологии, материала, партии и стоимости" width="1200" height="720" loading="lazy" decoding="async">
               </div>
               <div class="product-shot__caption product-shot__caption--glass product-casting-process__copy">
                 <span>Литье</span>
@@ -275,6 +397,26 @@
         </div>
       </section>
 
+      <section class="seo-services-section" aria-labelledby="seo-services-title">
+        <div class="seo-services-card reveal">
+          <span class="badge">Услуги</span>
+          <h2 id="seo-services-title">Заказ металлообработки, литья и расчёта деталей по чертежам</h2>
+          <div class="seo-services-text">
+            <p>Sinlex объединяет заказ, расчёт и сопровождение изготовления деталей в одном кабинете. Вы отправляете чертёж, PDF или STEP, а сервис помогает быстрее перейти от исходных данных к понятной заявке на производство.</p>
+            <p>Доступны направления мехобработки и литья: фрезеровка, токарная обработка, оценка литых заготовок, расчёт припусков, усадки, материала, массы и ориентира по стоимости партии. Подходит для единичных деталей, опытных образцов и небольших производственных серий.</p>
+          </div>
+          <ul class="seo-services-tags" aria-label="Ключевые направления заказа">
+            <li>металлообработка на заказ</li>
+            <li>изготовление по чертежам</li>
+            <li>литьё и расчёт заготовки</li>
+            <li>расчёт стоимости детали</li>
+            <li>заказ фрезеровки и токарки</li>
+            <li>STEP и 3D-модель</li>
+          </ul>
+          <a class="btn-trial-free seo-services-cta" href="/app">Расчитать и заказать</a>
+        </div>
+      </section>
+
       <section class="trial-cta reveal" aria-label="Отправить деталь на оценку">
         <button type="button" class="btn-trial-free" data-register-open>Отправить деталь на оценку</button>
         <p class="trial-cta-note">Регистрация займет несколько минут. После входа вы сможете создать заказ, загрузить файлы и продолжить общение с менеджером.</p>
@@ -286,10 +428,13 @@
           <div class="faq-col">
             <div class="faq-item"><button type="button" class="faq-question" aria-expanded="false"><span>Можно отправить только чертеж?</span><span class="faq-toggle" aria-hidden="true"></span></button><div class="faq-answer" role="region"><div class="faq-answer-inner">Да. Можно начать с PDF-чертежа или изображения. Если есть STEP или 3D-модель, приложите их тоже — так согласование пройдет быстрее.</div></div></div>
             <div class="faq-item"><button type="button" class="faq-question" aria-expanded="false"><span>Вы сразу называете финальную цену?</span><span class="faq-toggle" aria-hidden="true"></span></button><div class="faq-answer" role="region"><div class="faq-answer-inner">Сначала формируется предварительная оценка и уточняются детали заказа. Финальные условия фиксируются после проверки требований, материала, партии и сроков.</div></div></div>
+            <div class="faq-item"><button type="button" class="faq-question" aria-expanded="false"><span>Можно заказать металлообработку или литьё через Sinlex?</span><span class="faq-toggle" aria-hidden="true"></span></button><div class="faq-answer" role="region"><div class="faq-answer-inner">Да. Sinlex подходит для заказа мехобработки, фрезеровки, токарки и литья. В кабинете можно загрузить чертёж или STEP, уточнить материал, партию, припуски и получить расчёт перед запуском изготовления.</div></div></div>
           </div>
           <div class="faq-col">
             <div class="faq-item"><button type="button" class="faq-question" aria-expanded="false"><span>Где будет переписка по заказу?</span><span class="faq-toggle" aria-hidden="true"></span></button><div class="faq-answer" role="region"><div class="faq-answer-inner">В личном кабинете. Там же остаются исходные файлы, документы, решения по условиям и история общения с менеджером.</div></div></div>
             <div class="faq-item"><button type="button" class="faq-question" aria-expanded="false"><span>Для каких деталей подходит Sinlex?</span><span class="faq-toggle" aria-hidden="true"></span></button><div class="faq-answer" role="region"><div class="faq-answer-inner">Для деталей по чертежам и 3D-моделям: опытные образцы, единичные позиции и небольшие партии для производственных задач.</div></div></div>
+            <div class="faq-item"><button type="button" class="faq-question" aria-expanded="false"><span>Как рассчитывается стоимость изготовления?</span><span class="faq-toggle" aria-hidden="true"></span></button><div class="faq-answer" role="region"><div class="faq-answer-inner">После загрузки файлов система и менеджер проверяют геометрию, технологию, материал и партию. Для литья учитываются усадка, припуски и масса заготовки. Сначала даётся предварительная оценка, финальные условия фиксируются после согласования.</div></div></div>
+            <div class="faq-item"><button type="button" class="faq-question" aria-expanded="false"><span>Подходит ли сервис для заказа по чертежам без 3D-модели?</span><span class="faq-toggle" aria-hidden="true"></span></button><div class="faq-answer" role="region"><div class="faq-answer-inner">Да. Можно начать с PDF-чертежа или скана. Если позже появится STEP или 3D-модель, их можно добавить в карточку заказа для более точного расчёта и согласования.</div></div></div>
           </div>
         </div>
         <p class="faq-contact reveal">Связаться с нами: <a href="mailto:support@sinlex.tech">support@sinlex.tech</a></p>
