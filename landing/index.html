@@ -392,16 +392,29 @@
       </section>
 
       <section class="story-section trust-section landing-module" id="section-trust" data-section-label="Доверие" data-section-short="Доверие" aria-labelledby="trust-title">
-        <div class="story-card reveal">
-          <div class="story-inner">
-            <span class="badge">Прозрачность</span>
-            <h2 id="trust-title">Производственные данные остаются в понятном контуре</h2>
-            <p class="story-lead">Вместо разрозненных сообщений — единая карточка заказа: файлы, реквизиты, статус, документы и чат с менеджером. Чертежи и 3D-модели используются только для обработки заявки и согласования изготовления.</p>
-            <div class="stats">
-              <div class="stat-row"><span class="stat-label">Компания:</span><span class="stat-value">ООО «Солид»</span></div>
-              <div class="stat-row"><span class="stat-label">Документы:</span><span class="stat-value">реквизиты и закрывающие материалы в заказе</span></div>
-              <div class="stat-row"><span class="stat-label">Файлы:</span><span class="stat-value">чертежи, STEP и переписка собраны в кабинете</span></div>
-              <div class="stat-row"><span class="stat-label">Доступ:</span><span class="stat-value">данные видны только участникам обработки заявки</span></div>
+        <div class="section-head reveal">
+          <span class="badge">Защищённый контур</span>
+          <h2 id="trust-title">Чертежи проверяются на грифы и ограничения — <em>до расчёта и передачи в работу</em></h2>
+        </div>
+        <div class="trust-card trust-card--glass reveal reveal-d1">
+          <figure class="trust-card__visual">
+            <img src="assets/sinlex_secure.webp" srcset="assets/sinlex_secure.webp 1376w" sizes="(min-width: 760px) 760px, 100vw" alt="Схема защищённого контура Sinlex: OCR чертежей, проверка грифов и ограничений, локальный анализ и расчёт" width="1376" height="768" loading="lazy" decoding="async">
+          </figure>
+          <div class="trust-card__details">
+            <p class="trust-card__lead">После загрузки PDF и STEP чертёж не уходит сразу в расчёт. Sinlex локально распознаёт штамп, грифы и служебные пометки, проверяет риски по режиму секретности и экспортному контролю — и только после этого запускает анализ геометрии и формирование КП.</p>
+            <ul class="trust-points" aria-label="Как работает защищённый контур">
+              <li>OCR и OpenCV читают штамп, грифы и текст на чертеже</li>
+              <li>Контроль меток: «Секретно», ДСП, ОПК, экспортный контроль</li>
+              <li>При риске — блокировка или ручная проверка, без автопропуска</li>
+              <li>Разрешённые файлы обрабатываются локально: геометрия, расчёт, кабинет</li>
+            </ul>
+            <div class="trust-meta" aria-label="Принципы контура">
+              <div class="trust-meta__item"><span>Принцип</span><strong>Чертежи не покидают контур без проверки</strong></div>
+              <div class="trust-meta__item"><span>Оператор</span><strong>ООО «Солид»</strong></div>
+            </div>
+            <div class="trust-card__actions">
+              <button type="button" class="btn-trial-free trust-card__cta" data-register-open>Отправить деталь на оценку</button>
+              <p class="trust-card__note">Загрузите чертёж — система проверит грифы и ограничения до запуска расчёта.</p>
             </div>
           </div>
         </div>
