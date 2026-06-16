@@ -82,4 +82,14 @@
     target = clamp(target);
     current = clamp(current);
   });
+
+  window.sinlexScrollInertiaSync = function (y) {
+    var next = clamp(y !== undefined ? y : window.scrollY);
+    current = next;
+    target = next;
+    if (rafId) {
+      cancelAnimationFrame(rafId);
+      rafId = 0;
+    }
+  };
 })();

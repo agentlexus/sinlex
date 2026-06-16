@@ -57,8 +57,12 @@
       return;
     }
     var top = mod.getBoundingClientRect().top + window.scrollY;
+    var nextTop = Math.max(0, top);
+    if (typeof window.sinlexScrollInertiaSync === "function") {
+      window.sinlexScrollInertiaSync(nextTop);
+    }
     window.scrollTo({
-      top: Math.max(0, top),
+      top: nextTop,
       behavior: scrollBehavior(),
     });
   }
@@ -131,6 +135,9 @@
 
   if (scrollTopBtn) {
     scrollTopBtn.addEventListener("click", function () {
+      if (typeof window.sinlexScrollInertiaSync === "function") {
+        window.sinlexScrollInertiaSync(0);
+      }
       window.scrollTo({
         top: 0,
         behavior: scrollBehavior(),
