@@ -177,21 +177,27 @@
       <a class="site-sticky-bar__logo" href="/" aria-label="Sinlex — на главную">
         <img src="assets/logo_text_2.png" alt="Sinlex" width="121" height="19" decoding="async">
       </a>
-      <button type="button" class="btn-login" id="btn-login-sticky">Вход</button>
-      <button type="button" class="btn-login" data-register-open>Регистрация</button>
+      <nav class="section-nav section-nav--sticky" aria-label="Разделы лендинга" data-section-nav-host></nav>
+      <div class="site-sticky-bar__actions">
+        <button type="button" class="btn-login" id="btn-login-sticky">Вход</button>
+        <button type="button" class="btn-login" data-register-open>Регистрация</button>
+      </div>
     </div>
   </header>
 
   <div class="page">
     <header class="top-bar">
       <div class="top-bar-inner">
-        <button type="button" class="btn-login" id="btn-login">Вход</button>
-        <button type="button" class="btn-login" data-register-open>Регистрация</button>
+        <nav class="section-nav section-nav--top" aria-label="Разделы лендинга" data-section-nav-host></nav>
+        <div class="top-bar-actions">
+          <button type="button" class="btn-login" id="btn-login">Вход</button>
+          <button type="button" class="btn-login" data-register-open>Регистрация</button>
+        </div>
       </div>
     </header>
 
-    <main class="container">
-      <section class="hero platform-hero" aria-labelledby="hero-title">
+    <main class="container landing-scroll">
+      <section class="hero platform-hero landing-module" id="section-hero" data-section-label="Главная" data-section-short="Главная" aria-labelledby="hero-title">
         <div class="hero-top">
           <div class="brand reveal">
             <div class="logo-wrap">
@@ -243,7 +249,7 @@
         </div>
       </section>
 
-      <section class="story-section platform-section" aria-labelledby="platform-title">
+      <section class="story-section platform-section landing-module" id="section-platform" data-section-label="Платформа" data-section-short="Платформа" aria-labelledby="platform-title">
         <div class="story-card reveal">
           <div class="story-inner">
             <span class="badge">Для заказчика</span>
@@ -261,7 +267,7 @@
         </div>
       </section>
 
-      <section class="product-preview-section" aria-labelledby="product-preview-title">
+      <section class="product-preview-section landing-module landing-module--tall" id="section-cabinet" data-section-label="Кабинет" data-section-short="Кабинет" aria-labelledby="product-preview-title">
         <div class="section-head reveal"><span class="badge">Кабинет заказа</span><h2 id="product-preview-title">Один экран вместо цепочки писем</h2></div>
         <div class="product-shot-grid reveal reveal-d1" aria-label="Скриншоты кабинета Sinlex">
           <article class="product-shot product-shot--three">
@@ -325,6 +331,7 @@
         </div>
       </section>
 
+      <div class="landing-module" id="section-value" data-section-label="Преимущества" data-section-short="Ценность">
       <section class="benefits-section" aria-labelledby="benefits-title">
         <div class="section-head reveal"><span class="badge">Почему удобно</span><h2 id="benefits-title">Меньше неопределенности до и после запуска в производство</h2></div>
         <div class="benefits-grid reveal reveal-d1">
@@ -352,8 +359,9 @@
           </div>
         </div>
       </section>
+      </div>
 
-      <section class="process-section" aria-labelledby="process-title">
+      <section class="process-section landing-module" id="section-process" data-section-label="Этапы" data-section-short="Этапы" aria-labelledby="process-title">
         <div class="section-head reveal"><span class="badge">Как это выглядит</span><h2 id="process-title">От заявки до готовой детали</h2></div>
         <div class="process-grid reveal reveal-d1">
           <article class="process-card"><span>01</span><h3>Вы отправляете файлы</h3><p>Чертеж, STEP, PDF или архив по детали и партии.</p></article>
@@ -363,7 +371,7 @@
         </div>
       </section>
 
-      <section class="story-section platform-section" aria-labelledby="production-title">
+      <section class="story-section platform-section landing-module" id="section-production" data-section-label="Направления" data-section-short="Типы" aria-labelledby="production-title">
         <div class="story-card reveal">
           <div class="story-inner">
             <span class="badge">Производственные задачи</span>
@@ -383,7 +391,7 @@
         </div>
       </section>
 
-      <section class="story-section trust-section" aria-labelledby="trust-title">
+      <section class="story-section trust-section landing-module" id="section-trust" data-section-label="Доверие" data-section-short="Доверие" aria-labelledby="trust-title">
         <div class="story-card reveal">
           <div class="story-inner">
             <span class="badge">Прозрачность</span>
@@ -399,7 +407,7 @@
         </div>
       </section>
 
-      <section class="seo-services-section" aria-labelledby="seo-services-title">
+      <section class="seo-services-section landing-module" id="section-services" data-section-label="Услуги" data-section-short="Услуги" aria-labelledby="seo-services-title">
         <div class="seo-services-card reveal">
           <span class="badge">Услуги</span>
           <h2 id="seo-services-title">Заказ металлообработки, литья и расчёта деталей по чертежам</h2>
@@ -419,6 +427,7 @@
         </div>
       </section>
 
+      <div class="landing-module landing-module--footer" id="section-faq" data-section-label="Вопросы" data-section-short="FAQ">
       <section class="trial-cta reveal" aria-label="Отправить деталь на оценку">
         <button type="button" class="btn-trial-free" data-register-open>Отправить деталь на оценку</button>
         <p class="trial-cta-note">Регистрация займет несколько минут. После входа вы сможете создать заказ, загрузить файлы и продолжить общение с менеджером.</p>
@@ -441,6 +450,7 @@
         </div>
         <p class="faq-contact reveal">Связаться с нами: <a href="mailto:support@sinlex.tech">support@sinlex.tech</a></p>
       </section>
+      </div>
     </main>
 
     <footer>
@@ -533,7 +543,11 @@
   </div>
 
 
-  <script src="/js/scroll-inertia.js" defer></script>
+  <button type="button" class="scroll-to-top" id="scroll-to-top" aria-label="Наверх" hidden>
+    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 5l-7 7h4v7h6v-7h4z" fill="currentColor"/></svg>
+  </button>
+
+  <script src="/js/section-scroll.js" defer></script>
   <script src="/js/sticky-header.js" defer></script>
   <script src="/js/legal-modal.js" defer></script>
   <script src="/js/vendor/micromodal.min.js" defer></script>
