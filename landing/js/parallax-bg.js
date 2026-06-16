@@ -32,6 +32,7 @@
   var scene = document.querySelector(".bg-scene");
   var layer = document.querySelector(".bg-mountains");
   var mountainImg = layer && layer.querySelector("img");
+  var bgBlur = document.querySelector(".bg-blur");
   if (!scene || !layer) {
     return;
   }
@@ -94,6 +95,11 @@
 
     var edgeFade = Math.max(0, 0.62 * (1 - scrollRatio));
     layer.style.setProperty("--mountain-edge-fade", edgeFade.toFixed(3));
+
+    if (bgBlur) {
+      var blurFade = Math.max(0, 1 - scrollRatio / 0.9);
+      bgBlur.style.opacity = blurFade.toFixed(3);
+    }
   }
 
   function onScroll() {
@@ -116,6 +122,7 @@
   if (reduced) {
     layer.classList.remove("bg-enter-z");
     layer.style.opacity = "";
+    if (bgBlur) bgBlur.style.opacity = "1";
     layer.style.setProperty("--mountain-edge-fade", "0.55");
     if (mountainImg) {
       mountainImg.style.objectPosition = "center " + PARALLAX.objectPosStart + "%";
