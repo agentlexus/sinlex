@@ -59,6 +59,7 @@ body {
   overflow: hidden;
   perspective: 1200px;
   perspective-origin: center bottom;
+  background-color: #d4dae0;
 }
 
 .bg-mountains {

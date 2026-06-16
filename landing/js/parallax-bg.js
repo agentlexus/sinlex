@@ -145,17 +145,20 @@
     entranceLoop();
   }
 
-  function whenBackgroundReady(fn) {
+  function onBackgroundReady() {
+    apply();
+  }
+
+  function watchBackgroundReady() {
     if (!mountainImg) {
-      fn();
       return;
     }
     function done() {
       if (mountainImg.decode) {
-        mountainImg.decode().then(fn).catch(fn);
+        mountainImg.decode().then(onBackgroundReady).catch(onBackgroundReady);
         return;
       }
-      fn();
+      onBackgroundReady();
     }
     if (mountainImg.complete && mountainImg.naturalWidth > 0) {
       done();
@@ -184,7 +187,8 @@
     apply();
   } else {
     apply();
-    whenBackgroundReady(beginEntrance);
+    beginEntrance();
+    watchBackgroundReady();
   }
 
   window.addEventListener("scroll", onScroll, { passive: true });

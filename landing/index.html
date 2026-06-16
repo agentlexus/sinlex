@@ -166,7 +166,7 @@
 <body>
   <div class="bg-scene" aria-hidden="true">
     <figure class="bg-mountains bg-enter-z">
-      <img src="assets/industrial.webp" srcset="assets/industrial.webp 864w" sizes="100vw" alt="" width="864" height="1821" decoding="sync" fetchpriority="high">
+      <img src="assets/industrial.webp" srcset="assets/industrial.webp 864w" sizes="100vw" alt="" width="864" height="1821" decoding="async" fetchpriority="high">
     </figure>
     <script>
       (function () {
@@ -177,6 +177,7 @@
         layer.style.setProperty("--mountain-edge-fade", "0.62");
       })();
     </script>
+    <script src="/js/parallax-bg.js"></script>
   </div>
   <div class="bg-blur" aria-hidden="true"></div>
 
@@ -541,7 +542,6 @@
   </div>
 
 
-  <script src="/js/parallax-bg.js" defer></script>
   <script src="/js/scroll-inertia.js" defer></script>
   <script src="/js/sticky-header.js" defer></script>
   <script src="/js/legal-modal.js" defer></script>
