@@ -176,10 +176,15 @@
       <a class="site-sticky-bar__logo" href="/" aria-label="Sinlex — на главную">
         <img src="assets/logo_text_2.png" alt="Sinlex" width="121" height="19" decoding="async">
       </a>
-      <nav class="section-nav section-nav--sticky" aria-label="Разделы лендинга" data-section-nav-host></nav>
-      <div class="site-sticky-bar__actions">
-        <button type="button" class="btn-login" id="btn-login-sticky">Вход</button>
-        <button type="button" class="btn-login" data-register-open>Регистрация</button>
+      <nav class="section-nav section-nav--sticky" id="section-nav-sticky" aria-label="Разделы лендинга" data-section-nav-host></nav>
+      <div class="site-sticky-bar__tools">
+        <button type="button" class="nav-burger nav-burger--sticky" id="nav-burger-sticky" aria-label="Меню разделов" aria-expanded="false" aria-controls="section-nav-sticky">
+          <span class="nav-burger__lines" aria-hidden="true"><span></span><span></span><span></span></span>
+        </button>
+        <div class="site-sticky-bar__actions">
+          <button type="button" class="btn-login" id="btn-login-sticky">Вход</button>
+          <button type="button" class="btn-login" data-register-open>Регистрация</button>
+        </div>
       </div>
     </div>
   </header>
@@ -188,7 +193,10 @@
     <div class="bg-blur" aria-hidden="true"></div>
     <header class="top-bar">
       <div class="top-bar-inner">
-        <nav class="section-nav section-nav--top" aria-label="Разделы лендинга" data-section-nav-host></nav>
+        <button type="button" class="nav-burger nav-burger--top" id="nav-burger-top" aria-label="Меню разделов" aria-expanded="false" aria-controls="section-nav-top">
+          <span class="nav-burger__lines" aria-hidden="true"><span></span><span></span><span></span></span>
+        </button>
+        <nav class="section-nav section-nav--top" id="section-nav-top" aria-label="Разделы лендинга" data-section-nav-host></nav>
         <div class="top-bar-actions">
           <button type="button" class="btn-login" id="btn-login">Вход</button>
           <button type="button" class="btn-login" data-register-open>Регистрация</button>
@@ -599,6 +607,7 @@
 
   <script src="/js/tg-float.js" defer></script>
   <script src="/js/section-scroll.js" defer></script>
+  <script src="/js/nav-burger.js" defer></script>
   <script src="/js/sticky-header.js" defer></script>
   <script src="/js/legal-modal.js" defer></script>
   <script src="/js/vendor/micromodal.min.js" defer></script>
