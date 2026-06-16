@@ -31,22 +31,18 @@
 
   function buildNav() {
     navHosts.forEach(function (host) {
-      var isSticky = host.classList.contains("section-nav--sticky");
       var items = modules
         .map(function (mod) {
-          var fullLabel = mod.getAttribute("data-section-label") || mod.id;
-          var label = isSticky
-            ? mod.getAttribute("data-section-short") || fullLabel
-            : fullLabel;
-          var titleAttr = label !== fullLabel ? ' title="' + fullLabel + '"' : "";
+          var label =
+            mod.getAttribute("data-section-label") ||
+            mod.getAttribute("data-section-short") ||
+            mod.id;
           return (
             '<li><a class="section-nav__link btn-login" href="#' +
             mod.id +
             '" data-section-target="' +
             mod.id +
-            '"' +
-            titleAttr +
-            ">" +
+            '">' +
             label +
             "</a></li>"
           );
