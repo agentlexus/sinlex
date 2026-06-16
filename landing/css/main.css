@@ -353,7 +353,16 @@ body.sticky-bar-visible .top-bar {
   min-height: 100vh;
 }
 
-.page > header,
+.page > .bg-blur {
+  z-index: 0;
+}
+
+.page > header {
+  position: relative;
+  z-index: 3;
+  width: 100%;
+}
+
 .page > main,
 .page > footer {
   position: relative;
@@ -3130,7 +3139,7 @@ body.legal-modal-open {
 
 /* Навигация по секциям лендинга */
 .landing-module {
-  scroll-margin-top: 12px;
+  scroll-margin-top: 72px;
 }
 
 .section-nav {
