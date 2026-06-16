@@ -33,6 +33,7 @@
   var layer = document.querySelector(".bg-mountains");
   var mountainImg = layer && layer.querySelector("img");
   var bgBlur = document.querySelector(".bg-blur");
+  var productPreview = document.querySelector(".product-preview-section");
   if (!scene || !layer) {
     return;
   }
@@ -69,6 +70,14 @@
     return easeOut(t);
   }
 
+  function getBlurFadeDistance() {
+    if (!productPreview) {
+      return window.innerHeight * 0.85;
+    }
+    var sectionTop = productPreview.getBoundingClientRect().top + window.scrollY;
+    return Math.max(window.innerHeight * 0.5, sectionTop - window.innerHeight * 0.1);
+  }
+
   function apply() {
     var e = entranceProgress();
     var maxScroll = getMaxScroll();
@@ -97,7 +106,9 @@
     layer.style.setProperty("--mountain-edge-fade", edgeFade.toFixed(3));
 
     if (bgBlur) {
-      var blurFade = Math.max(0, 1 - scrollRatio / 0.9);
+      var blurFadeDistance = getBlurFadeDistance();
+      var blurFade =
+        blurFadeDistance > 0 ? Math.max(0, 1 - scroll / blurFadeDistance) : 0;
       bgBlur.style.opacity = blurFade.toFixed(3);
     }
   }

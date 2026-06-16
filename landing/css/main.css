@@ -92,18 +92,20 @@ body {
   pointer-events: none;
 }
 
-/* Полупрозрачное размытие между фоном и контентом */
+/* Лёгкий blur только для hero: интенсивность гасится в JS до блока «Кабинет заказа» */
 .bg-blur {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100vh;
+  height: 100dvh;
   z-index: 1;
   pointer-events: none;
   background: rgba(255, 255, 255, 0.03);
   backdrop-filter: blur(1.5px) saturate(1.02);
   -webkit-backdrop-filter: blur(1.5px) saturate(1.02);
-  -webkit-mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0.72) 34%, transparent 72%);
-  mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0.72) 34%, transparent 72%);
-  transition: opacity 0.2s ease;
+  will-change: opacity;
 }
 
 .bg-blur--off {
