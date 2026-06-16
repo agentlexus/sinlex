@@ -66,12 +66,14 @@ body {
   inset: 0;
   margin: 0;
   transform-origin: center bottom;
-  will-change: transform;
+  will-change: transform, opacity;
+  --mountain-edge-fade: 0.62;
 }
 
-/* Стартовое состояние до parallax-bg.js; появление по Z — только в JS (единый transform) */
+/* Стартовое состояние = кадр 0 entrance (совпадает с parallax-bg.js) */
 .bg-mountains.bg-enter-z {
   opacity: 0.2;
+  transform: translate3d(0, -56px, -56px) scale(0.97);
 }
 
 .bg-mountains img {

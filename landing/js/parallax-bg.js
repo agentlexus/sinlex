@@ -1,5 +1,5 @@
 /**
- * Параллакс фона + появление по Z при загрузке (один контур transform, без рывка).
+ * Параллакс фона + появление по Z (единый transform, без рывка на старте).
  */
 (function () {
   "use strict";
@@ -17,8 +17,8 @@
 
   var ENTRANCE = {
     durationMs: 2700,
-    fromZ: -80,
-    fromScale: 0.95,
+    fromZ: -56,
+    fromScale: 0.97,
     fromOpacity: 0.2,
   };
 
@@ -38,15 +38,10 @@
     return;
   }
 
-  scene.style.perspective = PARALLAX.perspective;
-  scene.style.perspectiveOrigin = PARALLAX.origin;
-  layer.style.transformOrigin = PARALLAX.origin;
-  layer.style.willChange = "transform, opacity";
-
-  var entranceStart = performance.now();
+  var entranceStart = 0;
+  var entranceStarted = false;
   var entranceDone = reduced;
   var ticking = false;
-  var entranceFrame = 0;
 
   function easeOut(t) {
     return 1 - Math.pow(1 - t, 2.8);
@@ -56,15 +51,29 @@
     return Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
   }
 
+  function entranceMotion(e) {
+    return {
+      tz: ENTRANCE.fromZ * (1 - e),
+      scale: PARALLAX.baseScale * (ENTRANCE.fromScale + (1 - ENTRANCE.fromScale) * e),
+    };
+  }
+
+  function layerTransform(ty, tz, scale) {
+    return "translate3d(0, " + ty + "px, " + tz + "px) scale(" + scale + ")";
+  }
+
   function entranceProgress() {
     if (entranceDone) {
       return 1;
     }
+    if (!entranceStarted) {
+      return 0;
+    }
     var t = (performance.now() - entranceStart) / ENTRANCE.durationMs;
     if (t >= 1) {
       entranceDone = true;
+      layer.style.opacity = "1";
       layer.classList.remove("bg-enter-z");
-      layer.style.opacity = "";
       return 1;
     }
     return easeOut(t);
@@ -80,19 +89,17 @@
 
   function apply() {
     var e = entranceProgress();
+    var motion = entranceMotion(e);
     var maxScroll = getMaxScroll();
     var scroll = Math.min(window.scrollY, maxScroll);
     var scrollRatio = maxScroll > 0 ? scroll / maxScroll : 0;
     var baseOffset = PARALLAX.baseOffsetY * (1 - scrollRatio);
     var ty = baseOffset + scroll * PARALLAX.speedY;
-    var tz = scroll * PARALLAX.translateZPerPx + ENTRANCE.fromZ * (1 - e);
-    var s = PARALLAX.baseScale * (ENTRANCE.fromScale + (1 - ENTRANCE.fromScale) * e);
     var objectPosY =
       PARALLAX.objectPosStart +
       (PARALLAX.objectPosEnd - PARALLAX.objectPosStart) * scrollRatio;
 
-    layer.style.transform =
-      "translate3d(0, " + ty + "px, " + tz + "px) scale(" + s + ")";
+    layer.style.transform = layerTransform(ty, motion.tz, motion.scale);
 
     if (mountainImg) {
       mountainImg.style.objectPosition = "center " + objectPosY.toFixed(2) + "%";
@@ -102,8 +109,7 @@
       layer.style.opacity = String(ENTRANCE.fromOpacity + (1 - ENTRANCE.fromOpacity) * e);
     }
 
-    var edgeFade = Math.max(0, 0.62 * (1 - scrollRatio));
-    layer.style.setProperty("--mountain-edge-fade", edgeFade.toFixed(3));
+    layer.style.setProperty("--mountain-edge-fade", String(Math.max(0, 0.62 * (1 - scrollRatio))));
 
     if (bgBlur) {
       var blurFadeDistance = getBlurFadeDistance();
@@ -126,21 +132,59 @@
   function entranceLoop() {
     apply();
     if (!entranceDone) {
-      entranceFrame = requestAnimationFrame(entranceLoop);
+      requestAnimationFrame(entranceLoop);
     }
+  }
+
+  function beginEntrance() {
+    if (entranceStarted || entranceDone) {
+      return;
+    }
+    entranceStarted = true;
+    entranceStart = performance.now();
+    entranceLoop();
+  }
+
+  function whenBackgroundReady(fn) {
+    if (!mountainImg) {
+      fn();
+      return;
+    }
+    function done() {
+      if (mountainImg.decode) {
+        mountainImg.decode().then(fn).catch(fn);
+        return;
+      }
+      fn();
+    }
+    if (mountainImg.complete && mountainImg.naturalWidth > 0) {
+      done();
+      return;
+    }
+    mountainImg.addEventListener("load", done, { once: true });
+    mountainImg.addEventListener("error", done, { once: true });
+  }
+
+  scene.style.perspective = PARALLAX.perspective;
+  scene.style.perspectiveOrigin = PARALLAX.origin;
+  layer.style.transformOrigin = PARALLAX.origin;
+  layer.style.willChange = "transform, opacity";
+  layer.style.setProperty("--mountain-edge-fade", "0.62");
+
+  var startMotion = entranceMotion(0);
+  layer.style.transform = layerTransform(PARALLAX.baseOffsetY, startMotion.tz, startMotion.scale);
+  if (!reduced) {
+    layer.style.opacity = String(ENTRANCE.fromOpacity);
   }
 
   if (reduced) {
     layer.classList.remove("bg-enter-z");
-    layer.style.opacity = "";
+    layer.style.opacity = "1";
     if (bgBlur) bgBlur.style.opacity = "1";
-    layer.style.setProperty("--mountain-edge-fade", "0.55");
-    if (mountainImg) {
-      mountainImg.style.objectPosition = "center " + PARALLAX.objectPosStart + "%";
-    }
     apply();
   } else {
-    entranceLoop();
+    apply();
+    whenBackgroundReady(beginEntrance);
   }
 
   window.addEventListener("scroll", onScroll, { passive: true });

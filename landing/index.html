@@ -30,6 +30,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Serif+Text:ital@0;1&family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <link rel="preload" as="image" href="assets/industrial.webp" type="image/webp">
   <link rel="stylesheet" href="/css/main.css">
   <script type="application/ld+json">
   {
@@ -165,8 +166,17 @@
 <body>
   <div class="bg-scene" aria-hidden="true">
     <figure class="bg-mountains bg-enter-z">
-      <img src="assets/industrial.webp" srcset="assets/industrial.webp 864w" sizes="100vw" alt="" width="864" height="1821" decoding="async" fetchpriority="low">
+      <img src="assets/industrial.webp" srcset="assets/industrial.webp 864w" sizes="100vw" alt="" width="864" height="1821" decoding="sync" fetchpriority="high">
     </figure>
+    <script>
+      (function () {
+        var layer = document.querySelector(".bg-mountains");
+        if (!layer) return;
+        layer.style.transform = "translate3d(0, -56px, -56px) scale(0.97)";
+        layer.style.opacity = "0.2";
+        layer.style.setProperty("--mountain-edge-fade", "0.62");
+      })();
+    </script>
   </div>
   <div class="bg-blur" aria-hidden="true"></div>
 
