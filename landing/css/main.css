@@ -57,9 +57,6 @@ body {
   z-index: 0;
   pointer-events: none;
   overflow: hidden;
-  perspective: 1200px;
-  perspective-origin: center bottom;
-  background-color: #d4dae0;
 }
 
 .bg-mountains {
@@ -67,14 +64,8 @@ body {
   inset: 0;
   margin: 0;
   transform-origin: center bottom;
-  will-change: transform, opacity;
+  will-change: transform;
   --mountain-edge-fade: 0.62;
-}
-
-/* Стартовое состояние = кадр 0 entrance (совпадает с parallax-bg.js) */
-.bg-mountains.bg-enter-z {
-  opacity: 0.2;
-  transform: translate3d(0, -56px, -56px) scale(0.97);
 }
 
 .bg-mountains img {
