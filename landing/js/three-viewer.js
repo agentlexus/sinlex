@@ -38,11 +38,11 @@ function initThreeViewer() {
 
   const viewGroup = new THREE.Group();
   const spinGroup = new THREE.Group();
-  const grid = new THREE.GridHelper(3.2, 16, 0x64748b, 0x94a3b8);
+  const grid = new THREE.GridHelper(3.2, 16, 0x9aa8b6, 0xd2dae3);
   grid.rotation.z = Math.PI / 2;
   grid.position.x = 0;
   grid.material.transparent = true;
-  grid.material.opacity = 0.28;
+  grid.material.opacity = 0.7;
   viewGroup.rotation.x = 0.62;
   viewGroup.rotation.y = 0.38;
   viewGroup.rotation.z = -1.79;
