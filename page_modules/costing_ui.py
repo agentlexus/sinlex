@@ -14,6 +14,7 @@ from upload_step import (
     is_rod_wp,
     normalize_wp_type,
 )
+from machining_cost import BATCH_SIZE_MAX, BATCH_SIZE_MIN
 from utils import chip_prices, material_prices, save_project_data
 
 _CRITERIA_CODE_LABELS: Dict[str, str] = {
@@ -202,18 +203,18 @@ def render_parameters_panel(
         st.write(", ".join(operations))
     with col2:
         st.markdown("**Количество**")
-        saved_bs = st.session_state.get("saved_batch_size", 1)
-        batch_options = [1, 10, 50, 100, 200, 500]
-        try:
-            bs_index = batch_options.index(int(saved_bs)) if int(saved_bs) in batch_options else 0
-        except Exception:
-            bs_index = 0
-        batch_size = st.selectbox(
+        saved_bs = int(st.session_state.get("saved_batch_size", BATCH_SIZE_MIN))
+        saved_bs = max(BATCH_SIZE_MIN, min(BATCH_SIZE_MAX, saved_bs))
+        batch_size = st.number_input(
             "",
-            batch_options,
-            index=bs_index,
+            value=saved_bs,
+            min_value=BATCH_SIZE_MIN,
+            max_value=BATCH_SIZE_MAX,
+            step=1,
             label_visibility="collapsed",
+            key="batch_size_input_right",
         )
+        batch_size = int(batch_size)
 
     col3, col4 = st.columns(2)
     with col3:

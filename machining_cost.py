@@ -5,7 +5,11 @@ import math
 import os
 from typing import Any, Dict, List, Optional
 
-# Доля полной «единичной» наладки, учитываемая на партию (остальное амортизируется)
+# Доля полной «единичной» наладки, учитываемая на партию (остальное амортизируется).
+# Ключи — опорные точки; для любого целого batch_size в [BATCH_SIZE_MIN, BATCH_SIZE_MAX]
+# значения линейно интерполируются (_interp_curve).
+BATCH_SIZE_MIN = 1
+BATCH_SIZE_MAX = 500
 BATCH_SETUP_AMORT = {1: 1.0, 10: 0.42, 50: 0.18, 100: 0.12, 200: 0.08, 500: 0.05}
 # Коэффициент серийности чистового времени резания (как было в app.py)
 BATCH_CUTTING_FACTOR = {1: 1.0, 10: 0.5, 50: 0.3, 100: 0.2, 200: 0.15, 500: 0.1}
@@ -20,7 +24,7 @@ CAM_HIGH_COMPLEXITY_MULT = float(os.environ.get("SINLEX_CAM_MULT_HIGH", "1.35"))
 
 
 def _interp_curve(batch_size: int, curve: Dict[int, float]) -> float:
-    batch_size = max(1, int(batch_size))
+    batch_size = max(BATCH_SIZE_MIN, min(BATCH_SIZE_MAX, int(batch_size)))
     keys = sorted(curve.keys())
     if batch_size <= keys[0]:
         return curve[keys[0]]
