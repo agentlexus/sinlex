@@ -37,19 +37,22 @@ flowchart LR
 
 Точка входа API: `POST /analyze-step` (`api/routers/cad.py`). Загрузка проекта: `page_modules/upload_step.py`.
 
-### Семейство детали (`part_family`)
+### Семейство детали и заготовка
 
-Порядок классификации (`_detect_part_family` → `_resolve_part_family`):
+Классификация STEP → `part_family`, `operations`, `workpiece`, `rotation_profile`.
 
-| Семейство | Код | Когда |
-|-----------|-----|-------|
-| Крыльчатка | `impeller` | Много TORUS/BSPL, сечение лопатки — сплайн; **не** затирается в `rod` при resolve |
-| Пруток / вал | `rod` | Тело вращения, Ø ≤ 300 мм, токарный профиль; короткие диски |
+| Семейство | Код | Когда (кратко) |
+|-----------|-----|----------------|
+| Пруток / вал | `rod` | Тело вращения, Ø ≤ 300 мм, токарный профиль; гильзы |
+| Крыльчатка | `impeller` | BSPL-лопатки; **не** TORUS-галтели на прутке |
 | Плита / корпус | `plate` | Коробчатый AABB, преобладание PLANE |
 | Крупногабарит | `oversize` | Габарит > 400 мм или масса > 100 кг |
-| Гибрид | `hybrid_shaft` | Длинный вал с прямоугольным сечением + фрезерные карманы |
+| Гибрид | `hybrid_shaft` | Вал намотки: длинное тело + фрезерные карманы |
 
-От семейства зависят `operations`, `workpiece`, токарный кейс (`rotation_profile`) и prior в гейте тонкостенности.
+Заготовка: **Пруток** / **Поковка** / **Плита** / **Блок** — по `turning_case`, формату модели и процессам.
+
+**Подробно:** [`docs/part-family-and-workpiece.md`](docs/part-family-and-workpiece.md)  
+**Токарка и rot_conf:** [`docs/TZ-turning-rotation-classification.md`](docs/TZ-turning-rotation-classification.md)
 
 ### Индексы сложности
 
@@ -109,8 +112,6 @@ flowchart LR
 | `SINLEX_WALL_RUN_THRESHOLD` | `0.45` | Порог p для ray-casting в fast |
 | `SINLEX_CASTING_WALL_BUDGET_SEC` | `45` | Бюджет стенок для литья |
 | `SINLEX_CASTING_WALL_MAX_FACES` | `55` | Лимит граней при литье |
-
-Подробнее о токарной классификации: [`docs/TZ-turning-rotation-classification.md`](docs/TZ-turning-rotation-classification.md).
 
 ---
 

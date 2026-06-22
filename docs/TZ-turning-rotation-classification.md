@@ -273,3 +273,5 @@ sudo systemctl restart sinlex-server sinlex-streamlit
 | 2 | Правила §4.3, `_infer_processes` | ✅ |
 | 3 | Workpiece / format / family | ✅ |
 | 4 | Регрессия STEP + UI | частично (FRM.698, bar d82) |
+
+Справочник по семействам и заготовке (актуальная логика): [`part-family-and-workpiece.md`](part-family-and-workpiece.md).
