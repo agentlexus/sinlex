@@ -30,7 +30,10 @@ _RE_TOL_NEAR_DIAM = re.compile(
     rf"{_DIAM}\s*{_NUM}[^.\n]{{0,40}}допуск",
     re.IGNORECASE,
 )
-_RE_THREAD_M = re.compile(r"\bM([3-9]|1\d|2[0-4])\b", re.IGNORECASE)
+_RE_THREAD_M = re.compile(
+    r"\bM([3-9]|1[0-9]|2[0-4])(?:[×xхX\-]\s*[0-9]+(?:[.,][0-9]+)?)?",
+    re.IGNORECASE,
+)
 _RE_THREAD_WORD = re.compile(r"резьб\w*", re.IGNORECASE)
 _RE_KEYWAY = re.compile(r"шпоночн\w*|шпон\w*|(?:^|[^\w])паз(?:\s|\w|$)", re.IGNORECASE)
 _RE_KEYWAY_WIDTH = re.compile(
@@ -320,6 +323,8 @@ def extract_manufacturing_criteria(
     if not text.strip():
         return _empty_criteria(drawing_extraction.get("pdf_hash") or "")
 
+    drawing_text = _collect_text_sources(drawing_extraction, expert_text="")
+
     ra_values = _parse_ra_values(text)
     ra_min = min(ra_values) if ra_values else None
     ra_finish_16 = ra_min is not None and ra_min <= cfg.RA_FINISH_THRESHOLD_MM
@@ -329,7 +334,7 @@ def extract_manufacturing_criteria(
     hole_tolerance = toleranced_holes > 0
 
     threaded_holes = _count_threaded_holes(text)
-    keyway, keyway_width = _detect_keyway(text)
+    keyway, keyway_width = _detect_keyway(drawing_text)
 
     modifiers = _build_modifiers(
         ra_finish_16=ra_finish_16,

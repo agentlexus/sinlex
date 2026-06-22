@@ -56,6 +56,14 @@ class TestKeyway(unittest.TestCase):
         self.assertAlmostEqual(c["detected"]["keyway_width_mm"], 5.0)
         self.assertIn("keyway", c["active_codes"])
 
+    def test_keyway_not_from_expert_text(self):
+        c = extract_manufacturing_criteria(
+            _extraction(""),
+            expert_text="На детали предусмотрен шпоночный паз 5 мм по тексту ИИ",
+        )
+        self.assertFalse(c["detected"]["keyway"])
+        self.assertNotIn("keyway", c["active_codes"])
+
 
 class TestThread(unittest.TestCase):
     def test_m6(self):
@@ -65,6 +73,14 @@ class TestThread(unittest.TestCase):
 
     def test_resba_m6(self):
         c = extract_manufacturing_criteria(_extraction("резьба M6"))
+        self.assertGreaterEqual(c["detected"]["threaded_holes"], 1)
+
+    def test_m18_with_pitch(self):
+        c = extract_manufacturing_criteria(_extraction("Резьба M18x1.5"))
+        self.assertGreaterEqual(c["detected"]["threaded_holes"], 1)
+
+    def test_m12(self):
+        c = extract_manufacturing_criteria(_extraction("M12-6H"))
         self.assertGreaterEqual(c["detected"]["threaded_holes"], 1)
 
 

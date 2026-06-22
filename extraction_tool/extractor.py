@@ -305,6 +305,7 @@ def _is_impeller_family(
     Крыльчатка / колесо компрессора: сечение лопатки — сложный сплайн (BSPL/TORUS).
     Корпус с прямолинейными рёбрами охлаждения: много PLANE, не крыльчатка.
     Плоская плита с рёбрами (педаль) — не крыльчатка.
+    Гильза/пруток с тороидальными галтелями — не крыльчатка (нужны сплайны лопаток).
     """
     if bbox and _is_flat_plate_bbox(bbox):
         return False
@@ -321,31 +322,39 @@ def _is_impeller_family(
     plane_share = plane / n
     bspl_share = bspl / n
     freeform_share = (torus + bspl) / n
+    cyl_share = cyl / n
+
+    axis = _bbox_axis_profile(bbox) if bbox else {}
+
+    # Тороиды без сплайнов на вытянутом теле вращения — галтели, не лопатки
+    if axis.get("is_elongated_rod") and cyl_share >= 0.12 and bspl < 40:
+        return False
 
     # Рёбра охлаждения и грани корпуса — преимущественно плоские, не лопатки
     if plane_share >= 0.38:
         return False
 
-    # Без доли сплайновых/тороидальных граней сечение не похоже на лопатку
+    # Без доли сплайновых граней сечение не похоже на лопатку (тороиды сами по себе — галтели)
     curved_blade_evidence = (
-        torus >= 12
-        or bspl >= 55
+        bspl >= 55
         or bspl_share >= 0.18
-        or (freeform_share >= 0.45 and bspl >= max(torus, 25))
+        or (torus >= 20 and bspl >= 15)
+        or (freeform_share >= 0.45 and bspl >= max(int(torus * 0.5), 25))
     )
     if not curved_blade_evidence:
         return False
 
-    axis = _bbox_axis_profile(bbox) if bbox else {}
     rotational = bool(axis.get("cross_round"))
 
-    if torus >= 15 or bspl >= 60:
-        return rotational or bspl >= 60
-    if fc >= 200 and freeform_share >= 0.4:
+    if bspl >= 60:
+        return True
+    if torus >= 80 and bspl_share >= 0.12:
+        return rotational or bspl >= 40
+    if fc >= 200 and freeform_share >= 0.4 and bspl_share >= 0.10:
         return rotational or bspl_share >= 0.12
-    if detail_index >= 17.0 and freeform_share >= 0.35 and fc >= 120:
-        return rotational and bspl_share >= 0.08
-    if torus >= 8 and bspl >= 40 and freeform_share >= 0.5:
+    if detail_index >= 17.0 and freeform_share >= 0.35 and fc >= 120 and bspl_share >= 0.08:
+        return rotational
+    if torus >= 40 and bspl >= 40 and freeform_share >= 0.5:
         return True
     return False
 
@@ -478,11 +487,18 @@ def _resolve_part_family(
     if is_oversize_part(bbox, volume_mm3):
         return "oversize"
 
-    if base == "impeller":
-        return "impeller"
-
+    n = _face_count_total(face_counts, topo)
+    cyl_share = face_counts.get("cyl_face_count", 0) / max(n, 1)
+    bspl = face_counts.get("other_face_count", 0)
     axis = _bbox_axis_profile(bbox)
     body_d = float(axis.get("diameter") or 0.0)
+
+    if base == "impeller":
+        # Гильза/пруток с тороидальными галтелями не должны оставаться крыльчаткой
+        if axis.get("is_elongated_rod") and cyl_share >= 0.12 and bspl < 40:
+            return "rod"
+        return "impeller"
+
     if axis.get("cross_round") and 0.0 < body_d <= config.BAR_STOCK_MAX_D_MM:
         return "rod"
 
@@ -1018,8 +1034,11 @@ def _m6_on_end_detected(
     main_axis: Tuple[float, float, float],
     axis_pt: Tuple[float, float, float],
     cones: List[Dict],
+    *,
+    body_d: float = 0.0,
 ) -> bool:
     """М6: фаска 1×45 (bore CONE) у торца на оси прутка."""
+    max_axis_dist = max(4.5, body_d * 0.085) if body_d > 0 else 4.5
     for c in cones:
         if c["kind"] != "bore":
             continue
@@ -1027,7 +1046,7 @@ def _m6_on_end_detected(
             continue
         if _angle_between_dirs(c["axis"], main_axis) > 8.0:
             continue
-        if _dist_point_to_axis(c["cent"], axis_pt, main_axis) > 4.5:
+        if _dist_point_to_axis(c["cent"], axis_pt, main_axis) > max_axis_dist:
             continue
         if c["area"] < 5.0:
             continue
@@ -1078,7 +1097,7 @@ def _analyze_rod_family(shape, bbox: Dict[str, float]) -> Dict[str, Any]:
             continue
         if body_d > 0 and c["d"] >= body_d * 0.92:
             continue
-        if c["area"] < 8.0 and c["d"] < 4.0:
+        if c["area"] < 8.0 and c["d"] < 4.5:
             continue
         bore_holes.append(
             {
@@ -1091,14 +1110,14 @@ def _analyze_rod_family(shape, bbox: Dict[str, float]) -> Dict[str, Any]:
     keyway_perp = [
         c for c in cyls
         if c["kind"] == "bore"
-        and 4.0 <= c["d"] <= 5.5
+        and 4.5 <= c["d"] <= 5.5
         and c["area"] < 80.0
         and _angle_between_dirs(c["axis"], main_axis) > 75.0
     ]
     keyway_wall = [
         c for c in cyls
         if c["kind"] == "bore"
-        and 4.0 <= c["d"] <= 5.5
+        and 4.5 <= c["d"] <= 5.5
         and c["area"] >= 50.0
         and _angle_between_dirs(c["axis"], main_axis) < 10.0
         and _dist_point_to_axis(c["cent"], axis_pt, main_axis) < 5.0
@@ -1128,7 +1147,7 @@ def _analyze_rod_family(shape, bbox: Dict[str, float]) -> Dict[str, Any]:
         for c in cones
     )
 
-    has_m6 = _m6_on_end_detected(shape, main_axis, axis_pt, cones)
+    has_m6 = _m6_on_end_detected(shape, main_axis, axis_pt, cones, body_d=body_d)
 
     holes: List[Dict[str, Any]] = list(bore_holes)
     features: List[Dict[str, Any]] = []
@@ -1852,6 +1871,17 @@ def _evaluate_turning_case(
 
     if (
         part_family == "rod"
+        and axis.get("is_elongated_rod")
+        and outer_d > 0
+        and outer_d <= config.BAR_STOCK_MAX_D_MM
+        and rot_conf >= config.ROT_CONF_HYBRID
+        and outer_share >= 0.30
+        and (ld >= config.ROD_MIN_LD_RATIO or axis.get("elongation", 0) >= config.ROD_MIN_LD_RATIO)
+    ):
+        return "bar", True, None
+
+    if (
+        part_family == "rod"
         and outer_d <= config.BAR_STOCK_MAX_D_MM
         and rot_conf >= 0.48
         and outer_share >= 0.38
@@ -2475,7 +2505,7 @@ def extract_step_path(
         )
 
         rod_meta: Optional[Dict[str, Any]] = None
-        if base_family == "rod":
+        if part_family == "rod":
             rod_meta = _analyze_rod_family(shape, bbox)
             holes = rod_meta["holes"]
             shafts = rod_meta["shafts"]
