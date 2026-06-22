@@ -366,6 +366,9 @@ def run_start_background(
         job["channel_task_id"] = task_id
         job["norm_inputs_snapshot"] = dict(norm_inputs or {})
         save_job(job)
+        from ops_notify import notify_flow_activated
+
+        notify_flow_activated(user_email)
     except MaxSufflerError as exc:
         job = load_job(project_name, user_folder, task_id)
         job["status"] = "error"

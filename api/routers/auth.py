@@ -115,6 +115,9 @@ async def auth_register(data: AuthRequest):
         "folder": folder,
     }
     save_accounts(accounts)
+    from ops_notify import notify_user_registered
+
+    notify_user_registered(data.email)
     user_dir = os.path.join(PROJECTS_ROOT, folder)
     os.makedirs(user_dir, exist_ok=True)
     with open(os.path.join(user_dir, "projects.json"), "w", encoding="utf-8") as f:
@@ -265,6 +268,9 @@ async def register_code_confirm(data: RegisterCodeConfirmRequest):
         "phone": (data.phone or item.get("phone") or "").strip()[:40],
     }
     save_accounts(accounts)
+    from ops_notify import notify_user_registered
+
+    notify_user_registered(email)
     _ensure_project_dir(folder)
 
     pending.pop(email, None)
