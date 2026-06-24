@@ -14,6 +14,7 @@ from email.message import Message
 from email_logistics.channel import EmailLogisticsChannel
 from email_logistics.config import load_channel_config, resolve_active_channel
 from email_logistics.imap_receive import (
+    _is_balance_only_reply,
     _match_task_id,
     normalize_msg_id,
     strip_quoted_reply,
@@ -62,6 +63,10 @@ class TestImapHelpers(unittest.TestCase):
         msg = Message()
         body = f"task_id:{tid}\nШероховатость Ra 0.8"
         self.assertEqual(_match_task_id(pending, msg, body), tid)
+
+    def test_balance_only_reply_detection(self) -> None:
+        self.assertTrue(_is_balance_only_reply("500\n\nSinlex писал:"))
+        self.assertFalse(_is_balance_only_reply("Крышка 2 мм\n12 отверстий"))
 
 
 class TestChannelConfig(unittest.TestCase):

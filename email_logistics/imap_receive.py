@@ -151,6 +151,83 @@ def _is_outbound_service_body(body: str) -> bool:
     return False
 
 
+def _is_balance_only_reply(body: str) -> bool:
+    """Короткий ответ «500» на запрос стоимости — не текст распознавания."""
+    raw = (body or "").strip()
+    if not raw:
+        return True
+    if parse_balance_tokens_from_text(raw) is None:
+        return False
+    first = raw.splitlines()[0].strip()
+    if re.fullmatch(r"\d+", first) and len(raw) < 120:
+        return True
+    return False
+
+
+def _search_thread_message_nums(imap: Any, message_id: str) -> List[bytes]:
+    """Все письма в цепочке reply к исходному Message-ID (включая \Seen)."""
+    mid = normalize_msg_id(message_id)
+    if not mid:
+        return []
+    nums: List[bytes] = []
+    seen_nums: Set[bytes] = set()
+    for criterion in (
+        f'(HEADER "In-Reply-To" "<{mid}>")',
+        f'(HEADER "References" "<{mid}>")',
+    ):
+        try:
+            status, data = imap.search(None, criterion)
+        except imaplib.IMAP4.error:
+            continue
+        if status != "OK" or not data or not data[0]:
+            continue
+        for num in data[0].split():
+            if num not in seen_nums:
+                seen_nums.add(num)
+                nums.append(num)
+    return nums
+
+
+def _process_thread_replies(
+    imap: Any,
+    cfg: dict,
+    *,
+    pending: Dict[str, Dict[str, Any]],
+    on_match,
+    skip_balance_only: bool = False,
+) -> None:
+    """Подхват ответов, уже помеченных прочитанными в webmail (не UNSEEN)."""
+    if not pending:
+        return
+    for tid, item in list(pending.items()):
+        mid = str(item.get("message_id") or "")
+        if not mid:
+            continue
+        best_body = ""
+        best_num: bytes | None = None
+        single_pending = {tid: item}
+        for num in _search_thread_message_nums(imap, mid):
+            status, fetched = imap.fetch(num, "(RFC822)")
+            if status != "OK" or not fetched or not fetched[0]:
+                continue
+            raw = fetched[0][1]
+            if not isinstance(raw, (bytes, bytearray)):
+                continue
+            msg = email.message_from_bytes(bytes(raw))
+            body = _message_body_text(msg)
+            if not body.strip() or _is_outbound_service_body(body):
+                continue
+            if _match_task_id(single_pending, msg, body) != tid:
+                continue
+            if skip_balance_only and _is_balance_only_reply(body):
+                continue
+            if len(body) > len(best_body):
+                best_body = body
+                best_num = num
+        if best_body and best_num is not None:
+            on_match(tid, best_body, best_num)
+
+
 def _imap_connect_and_select(cfg: dict, *, readonly: bool = False):
     host = cfg["imap_host"]
     port = int(cfg["imap_port"])
@@ -268,6 +345,14 @@ def poll_inbox(cfg: dict, state: Dict[str, Any]) -> None:
             )
 
         _process_unseen_messages(imap, cfg, pending=pending, on_match=on_match)
+        if pending:
+            _process_thread_replies(
+                imap,
+                cfg,
+                pending=pending,
+                on_match=on_match,
+                skip_balance_only=True,
+            )
     finally:
         if imap is not None:
             try:
