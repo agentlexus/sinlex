@@ -11,8 +11,8 @@ import sys
 
 from api.auth_accounts import resolve_user_email
 from api.config import API_KEY, BASE_DIR
-from api.services.casting_fs import ensure_casting_glb, resolve_casting_project_dir, user_casting_dir
-from api.services.projects_fs import ensure_project_glb, resolve_project_dir, user_projects_dir
+from api.services.casting_fs import ensure_casting_glb_async, resolve_casting_project_dir, user_casting_dir
+from api.services.projects_fs import ensure_project_glb_async, resolve_project_dir, user_projects_dir
 from api.templates import render_template
 from api.three_static import browser_api_prefix, three_importmap_json
 
@@ -78,12 +78,12 @@ async def _serve_enhanced_3d_embed(
         if storage == "casting":
             user_dir = user_casting_dir(user_email, folder)
             safe_name, pdir = resolve_casting_project_dir(user_dir, project_name)
-            ensure_casting_glb(user_email, project_name, folder)
+            await ensure_casting_glb_async(user_email, project_name, folder)
             api_segment = "casting"
         else:
             user_dir = user_projects_dir(user_email, folder)
             safe_name, pdir = resolve_project_dir(user_dir, project_name)
-            ensure_project_glb(user_email, project_name, folder)
+            await ensure_project_glb_async(user_email, project_name, folder)
             api_segment = "projects"
         glb_path = os.path.join(pdir, f"{safe_name}.glb")
         if not os.path.isfile(glb_path):
@@ -199,7 +199,7 @@ async def embed_3d_viewer(
             user_projects_dir(user_email, folder),
             project_name,
         )
-        ensure_project_glb(user_email, project_name, folder)
+        await ensure_project_glb_async(user_email, project_name, folder)
     except HTTPException as e:
         return HTMLResponse(
             f"<p style='color:red;padding:1rem;font-family:sans-serif'>{e.detail}</p>",

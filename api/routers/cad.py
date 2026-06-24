@@ -1,4 +1,5 @@
 """STEP conversion and analysis endpoints."""
+import asyncio
 import os
 import sys
 import tempfile
@@ -8,9 +9,21 @@ from fastapi.responses import Response
 
 from api.auth_accounts import get_user_folder
 from api.config import BASE_DIR
+from api.services.cad_executor import run_cad
 from api.services.step_convert import step_bytes_to_glb_response
+from page_modules.upload_limits import STEP_ANALYZE_TIMEOUT_SEC, STEP_GLB_TIMEOUT_SEC
 
 router = APIRouter(tags=["cad"])
+
+_STEP_TIMEOUT_DETAIL = "Превышено время обработки STEP"
+
+
+def _analyze_step_bytes(content: bytes, *, casting: bool) -> dict:
+    if BASE_DIR not in sys.path:
+        sys.path.insert(0, BASE_DIR)
+    from step_analyzer import analyze_step
+
+    return analyze_step(content, force_wall_thickness=casting)
 
 
 @router.post("/step-to-glb")
@@ -24,11 +37,18 @@ async def step_to_glb(file: UploadFile = File(...), x_user_email: str = Header(N
     try:
         import json
 
-        glb_data, volume, dims = step_bytes_to_glb_response(step_path, glb_path)
+        glb_data, volume, dims = await run_cad(
+            step_bytes_to_glb_response,
+            step_path,
+            glb_path,
+            timeout=STEP_GLB_TIMEOUT_SEC,
+        )
         response = Response(content=glb_data, media_type="model/gltf-binary")
         response.headers["X-Model-Volume"] = str(round(volume, 6))
         response.headers["X-Model-Dimensions"] = json.dumps(dims)
         return response
+    except asyncio.TimeoutError:
+        raise HTTPException(status_code=504, detail=_STEP_TIMEOUT_DETAIL) from None
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
     finally:
@@ -46,11 +66,12 @@ async def analyze_step_endpoint(
     get_user_folder(x_user_email)
     content = await file.read()
     try:
-        if BASE_DIR not in sys.path:
-            sys.path.insert(0, BASE_DIR)
-        from step_analyzer import analyze_step
-
-        result = analyze_step(content, force_wall_thickness=casting)
+        result = await run_cad(
+            _analyze_step_bytes,
+            content,
+            casting=casting,
+            timeout=STEP_ANALYZE_TIMEOUT_SEC,
+        )
         if result.get("error") and not result.get("volume"):
             raise HTTPException(status_code=500, detail=result["error"])
         dims = result.get("dimensions", {})
@@ -62,6 +83,8 @@ async def analyze_step_endpoint(
                 f"{dims.get('x', 0):.0f} × {dims.get('y', 0):.0f} × {dims.get('z', 0):.0f} мм"
             )
         return result
+    except asyncio.TimeoutError:
+        raise HTTPException(status_code=504, detail=_STEP_TIMEOUT_DETAIL) from None
     except HTTPException:
         raise
     except Exception as e:

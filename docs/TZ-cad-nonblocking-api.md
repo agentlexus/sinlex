@@ -1,7 +1,7 @@
 # TZ: неблокирующая обработка STEP/CAD в API
 
 Версия: 2026-06-24  
-Статус: к реализации (локально → push → prod)
+Статус: **реализовано** (2026-06-24)
 
 Связано: [`docs/TZ-step-upload-limits.md`](TZ-step-upload-limits.md)
 
@@ -131,8 +131,6 @@ if not os.path.exists(glb_path):
 
 ## 6. Задачи (чеклист для локала)
 
-| ID | Область | Задача |
-|----|--------|--------|
 | **CAD-1** | `api/services/cad_executor.py` | Executor + semaphore + `run_cad()` + таймауты |
 | **CAD-2** | `api/routers/cad.py` | `analyze-step` и `step-to-glb` через `run_cad` |
 | **CAD-3** | `api/services/projects_fs.py` или `projects.py` | `ensure_project_glb` — async-обёртка генерации GLB |

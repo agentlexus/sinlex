@@ -12,7 +12,7 @@ from api.auth_accounts import (
     get_user_projects_file,
     resolve_user_email,
 )
-from api.services.projects_fs import ensure_project_glb
+from api.services.projects_fs import ensure_project_glb_async
 from project_dates import (
     build_project_record,
     migrate_projects_data,
@@ -48,7 +48,7 @@ async def get_project_glb(
 ):
     try:
         user_email = resolve_user_email(x_user_email, key, email, sid)
-        glb_path = ensure_project_glb(user_email, project_name, folder)
+        glb_path = await ensure_project_glb_async(user_email, project_name, folder)
         return FileResponse(glb_path, media_type="model/gltf-binary")
     except HTTPException as e:
         return JSONResponse({"detail": str(e.detail)}, status_code=e.status_code)

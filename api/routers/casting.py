@@ -7,7 +7,7 @@ from fastapi import APIRouter, File, Header, HTTPException, Query, UploadFile
 from fastapi.responses import FileResponse, JSONResponse
 
 from api.auth_accounts import get_user_casting_dir, get_user_casting_file, resolve_user_email
-from api.services.casting_fs import ensure_casting_glb, ensure_casting_stock_glb, resolve_casting_project_dir, user_casting_dir
+from api.services.casting_fs import ensure_casting_glb_async, ensure_casting_stock_glb, resolve_casting_project_dir, user_casting_dir
 from project_dates import build_project_record, migrate_projects_file, sort_projects_by_created
 
 router = APIRouter(tags=["casting"])
@@ -38,7 +38,7 @@ async def get_casting_glb(
 ):
     try:
         user_email = resolve_user_email(x_user_email, key, email, sid)
-        glb_path = ensure_casting_glb(user_email, project_name, folder)
+        glb_path = await ensure_casting_glb_async(user_email, project_name, folder)
         return FileResponse(glb_path, media_type="model/gltf-binary")
     except HTTPException as e:
         return JSONResponse({"detail": str(e.detail)}, status_code=e.status_code)

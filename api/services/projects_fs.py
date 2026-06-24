@@ -5,7 +5,7 @@ from fastapi import HTTPException
 
 from api.auth_accounts import get_user_project_dir
 from api.config import PROJECTS_ROOT
-from api.services.step_convert import ensure_glb_from_stp
+from api.services.step_convert import ensure_glb_from_stp, ensure_glb_from_stp_async
 
 
 def user_projects_dir(user_email: str, user_folder: str = "") -> str:
@@ -47,4 +47,17 @@ def ensure_project_glb(
     glb_path = os.path.join(pdir, f"{safe_name}.glb")
     stp_path = os.path.join(pdir, f"{safe_name}.stp")
     ensure_glb_from_stp(stp_path, glb_path)
+    return glb_path
+
+
+async def ensure_project_glb_async(
+    user_email: str,
+    project_name: str,
+    user_folder: str = "",
+) -> str:
+    user_dir = user_projects_dir(user_email, user_folder)
+    safe_name, pdir = resolve_project_dir(user_dir, project_name)
+    glb_path = os.path.join(pdir, f"{safe_name}.glb")
+    stp_path = os.path.join(pdir, f"{safe_name}.stp")
+    await ensure_glb_from_stp_async(stp_path, glb_path)
     return glb_path

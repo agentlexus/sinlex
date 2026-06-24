@@ -3,6 +3,8 @@
 Версия: 2026-05-22  
 Статус: реализовано (этапы 1–4)
 
+См. также: [`TZ-cad-nonblocking-api.md`](TZ-cad-nonblocking-api.md) — executor для `/analyze-step` и `/step-to-glb` (не блокировать event loop).
+
 ---
 
 ## 1. Цель

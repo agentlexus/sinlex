@@ -1,7 +1,10 @@
 """STEP/STP → GLB conversion (OCC metadata when available, trimesh + cascadio fallback)."""
+import asyncio
 import os
 
 from fastapi import HTTPException
+
+from page_modules.upload_limits import STEP_GLB_TIMEOUT_SEC
 
 
 def _occ_available() -> bool:
@@ -111,6 +114,31 @@ def ensure_glb_from_stp(stp_path: str, glb_path: str) -> None:
         raise HTTPException(404, "GLB не найден")
     try:
         convert_step_file_to_glb(stp_path, glb_path)
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(500, f"Не удалось сгенерировать GLB: {str(e)}") from e
+    if not os.path.exists(glb_path):
+        raise HTTPException(404, "GLB не найден")
+
+
+async def ensure_glb_from_stp_async(stp_path: str, glb_path: str) -> None:
+    """Like ensure_glb_from_stp, but GLB generation runs in the CAD executor."""
+    if os.path.exists(glb_path):
+        return
+    if not os.path.exists(stp_path):
+        raise HTTPException(404, "GLB не найден")
+    from api.services.cad_executor import run_cad
+
+    try:
+        await run_cad(
+            convert_step_file_to_glb,
+            stp_path,
+            glb_path,
+            timeout=STEP_GLB_TIMEOUT_SEC,
+        )
+    except asyncio.TimeoutError:
+        raise HTTPException(504, "Превышено время обработки STEP") from None
     except HTTPException:
         raise
     except Exception as e:
