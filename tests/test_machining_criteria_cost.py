@@ -87,6 +87,17 @@ class TestCriteriaModifiers(unittest.TestCase):
         tc_adj = mcst_adj + mct + cam_cost - cr
         self.assertGreater(tc_adj, tc_base)
 
+    def test_cam_rate_zero_with_criteria(self):
+        kw = _base_kwargs()
+        kw["cam_rate_per_hour"] = 0.0
+        criteria = extract_manufacturing_criteria(
+            {"pdf_hash": "x", "full_text": "Ra 1.6", "fields": {}, "parsed_dimensions": []}
+        )
+        q = compute_machining_quote(**kw, drawing_criteria=criteria)
+        self.assertTrue(q["cam_applies"])
+        self.assertEqual(q["cam_rate"], 0.0)
+        self.assertEqual(q["cam_cost_batch"], 0.0)
+
     def test_measure_hours_in_mhpu(self):
         kw = _base_kwargs()
         base_q = _compute_machining_quote_base(**kw)

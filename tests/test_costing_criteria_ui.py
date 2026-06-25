@@ -12,11 +12,20 @@ if importlib.util.find_spec("streamlit") is None:
     sys.modules["streamlit"] = types.SimpleNamespace(session_state={})
 
 from page_modules.costing_ui import (
+    _format_hours_h,
     _criteria_has_ui,
     build_criteria_table_rows,
     compute_costing_snapshot,
     _modifier_summary_lines,
 )
+
+
+class TestFormatHours(unittest.TestCase):
+    def test_subminute_not_rounded_to_zero(self):
+        self.assertEqual(_format_hours_h(0.005367), "0.3 мин")
+
+    def test_zero(self):
+        self.assertEqual(_format_hours_h(0), "0 мин")
 
 
 class TestCriteriaUiHelpers(unittest.TestCase):

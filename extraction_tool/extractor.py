@@ -889,6 +889,13 @@ def count_setups_from_shape(
         if axis_prof["elongation"] >= 2.0 and not axis_prof["cross_round"]:
             turning_sides = max(turning_sides, 2)
             detail["hybrid_end_turning"] = True
+    if rod_meta.get("hex_head_stud"):
+        if has_turn:
+            turning_sides = 1
+            detail["hex_head_stud_turning"] = True
+        if has_mill:
+            milling_sides = 1
+            detail["hex_head_stud_milling"] = True
     turning_count = max(turning_sides, 1) if has_turn else 0
     milling_count = max(milling_sides, 1) if has_mill else 0
     drill_extra = 0
@@ -1850,6 +1857,9 @@ def _evaluate_turning_case(
     part_family: str = "plate",
     hybrid_turn_mill: bool = False,
     part_name: str = "",
+    face_counts: Optional[Dict[str, int]] = None,
+    shafts: Optional[List[Dict]] = None,
+    hex_head_stud: bool = False,
 ) -> Tuple[Optional[str], bool, Optional[str]]:
     """
     Case A bar | B forging | C disc | D hybrid | None.
@@ -1862,6 +1872,16 @@ def _evaluate_turning_case(
     plane_pen = float(rot_profile.get("plane_penalty") or 0)
     axis = _bbox_axis_profile(bbox)
     name_low = (part_name or "").lower()
+
+    if hex_head_stud or _is_hex_head_stud(
+        rot_profile,
+        bbox,
+        face_counts or {},
+        shafts,
+        part_family=part_family,
+        part_name=part_name,
+    ):
+        return "bar", True, None
 
     if any(k in name_low for k in ("намотк", "намоточ", "winding")):
         return "hybrid", True, None
@@ -1939,6 +1959,72 @@ def _evaluate_turning_case(
             return "bar" if outer_d <= config.BAR_STOCK_MAX_D_MM else "forging", True, None
 
     return None, False, f"no turning case (rot_conf={rot_conf:.2f}, Ø={outer_d:.0f}, L/D={ld:.2f})"
+
+
+_HEX_STUD_NAME_KEYS = (
+    "шестигр",
+    "шестиг",
+    "hex",
+    "stud",
+    "болт",
+    "винт",
+    "стойк",
+    "шпильк",
+)
+
+
+def _is_hex_head_stud(
+    rot_profile: Dict[str, Any],
+    bbox: Dict[str, float],
+    face_counts: Dict[str, int],
+    shafts: Optional[List[Dict]] = None,
+    *,
+    part_family: str = "plate",
+    part_name: str = "",
+) -> bool:
+    """
+    Шпилька/стойка с шестигранной головкой: тело и резьба — токарка, фрезеровка только под ключ.
+    Наружных цилиндров в STEP часто нет (шестигранник + резьба), rotation_confidence ≈ 0.
+    """
+    if part_family != "rod":
+        return False
+
+    name_low = (part_name or "").lower()
+    name_hint = any(k in name_low for k in _HEX_STUD_NAME_KEYS)
+
+    shafts = shafts or []
+    body_ds = [
+        float(s.get("diameter", 0))
+        for s in shafts
+        if s.get("feature") == "body" and float(s.get("diameter", 0)) > 0
+    ]
+    body_d = max(body_ds) if body_ds else float(rot_profile.get("outer_diameter_mm") or 0)
+    if body_d <= 0 or body_d > config.BAR_STOCK_MAX_D_MM:
+        return False
+
+    axis = _bbox_axis_profile(bbox)
+    ld = float(rot_profile.get("ld_ratio") or axis.get("elongation") or 0)
+    if ld < 1.3 and float(axis.get("elongation") or 0) < 1.3:
+        return False
+
+    sm, mid, lg = sorted([bbox["x"], bbox["y"], bbox["z"]])
+    cross_square = abs(sm - mid) / max(sm, mid, 1e-9) < 0.15
+    outer_share = float(rot_profile.get("outer_cyl_area_share") or 0)
+    plane = int(face_counts.get("plane_face_count") or 0)
+    cyl = int(face_counts.get("cyl_face_count") or 0)
+
+    geo_hex_stud = (
+        cross_square
+        and outer_share < 0.25
+        and plane >= 4
+        and lg <= 150.0
+        and (cyl >= 2 or plane <= 16)
+    )
+    if geo_hex_stud:
+        return True
+    if name_hint and cross_square and body_d > 0 and ld >= 1.2:
+        return True
+    return False
 
 
 def _rotation_profile_with_turning(
@@ -2076,12 +2162,20 @@ def _infer_processes(
     hybrid_turn_mill = bool(rod_meta.get("hybrid_turn_mill")) or _is_hybrid_turn_mill_body(
         face_counts, bbox, face_count=face_count, part_name=part_name
     )
+    hex_head_stud = bool(rod_meta.get("hex_head_stud")) or _is_hex_head_stud(
+        rot_profile or {},
+        bbox,
+        face_counts,
+        shafts,
+        part_family=part_family,
+        part_name=part_name,
+    )
     if rot_profile is not None:
         rotational = bool(rot_profile.get("rotational"))
-        add_turning = rotational
+        add_turning = rotational or hex_head_stud
     else:
         rotational = rev["rotational"]
-        add_turning = rotational or (
+        add_turning = rotational or hex_head_stud or (
             hybrid_turn_mill
             and float(rev.get("legacy_hint") or 0) >= config.ROT_CONF_HYBRID
         )
@@ -2097,6 +2191,8 @@ def _infer_processes(
 
     if needs_5axis:
         processes.append("Фрезерная (5-осевая)")
+    elif hex_head_stud:
+        processes.append("Фрезерная")
     elif not simple_blank:
         # Диск/маховик: 2 установки на 3-оси после токарки (отверстия, контур, фаски)
         rod_needs_milling = part_family == "rod" and (
@@ -2129,7 +2225,9 @@ def _infer_processes(
         if needs_3axis:
             processes.append("Фрезерная")
 
-    if holes_n >= 2:
+    if hex_head_stud:
+        pass
+    elif holes_n >= 2:
         processes.append("Сверление")
     elif holes_n >= 1 and not rotational:
         processes.append("Сверление")
@@ -2505,12 +2603,23 @@ def extract_step_path(
         )
 
         rod_meta: Optional[Dict[str, Any]] = None
+        hex_head_stud = False
         if part_family == "rod":
             rod_meta = _analyze_rod_family(shape, bbox)
             holes = rod_meta["holes"]
             shafts = rod_meta["shafts"]
             face_counts["holes_count"] = rod_meta["holes_feature_count"]
             face_counts["shafts_count"] = rod_meta["shafts_feature_count"]
+            hex_head_stud = _is_hex_head_stud(
+                rot_shell,
+                bbox,
+                face_counts,
+                shafts,
+                part_family=part_family,
+                part_name=file_name,
+            )
+            if hex_head_stud:
+                rod_meta["hex_head_stud"] = True
         else:
             holes = _holes_from_bore_clustering(shape, bbox)
             face_counts["holes_count"] = len(holes)
@@ -2521,6 +2630,9 @@ def extract_step_path(
             part_family=part_family,
             hybrid_turn_mill=hybrid_turn_mill,
             part_name=file_name,
+            face_counts=face_counts,
+            shafts=shafts,
+            hex_head_stud=hex_head_stud,
         )
         rot_profile["turning_case"] = tc
         rot_profile["rotational"] = t_rot
@@ -2657,6 +2769,7 @@ def extract_step_path(
             "price_primitive": _primitive_price(volume),
             "notes": "",
             "rod_features": rod_meta.get("features") if rod_meta else None,
+            "hex_head_stud": bool(rod_meta.get("hex_head_stud")) if rod_meta else False,
             "setup_count_turning": setup_counts.get("setup_count_turning", 0),
             "setup_count_milling": setup_counts.get("setup_count_milling", 0),
             "setup_count_total": setup_counts.get("setup_count_total", 1),
@@ -2918,6 +3031,7 @@ def to_api_format(metrics: Dict[str, Any], faces_list: Optional[List] = None) ->
             "detail_index": metrics.get("detail_index", 0),
             "elongation_index": metrics.get("elongation_index", 0),
             "hybrid_turn_mill": bool(metrics.get("hybrid_turn_mill")),
+            "hex_head_stud": bool(metrics.get("hex_head_stud")),
             "rotation_confidence": metrics.get("rotation_confidence"),
             "rotation_profile": metrics.get("rotation_profile"),
             "holes": metrics.get("holes") or [],

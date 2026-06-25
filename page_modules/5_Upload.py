@@ -136,7 +136,7 @@ def render() -> None:
                 dh = int(saved["height"])
             if saved.get("cost_per_hour"):
                 dc = int(saved["cost_per_hour"])
-            if saved.get("cam_rate"):
+            if saved.get("cam_rate") is not None:
                 st.session_state["cam_rate"] = int(saved["cam_rate"])
             if saved.get("batch_size"):
                 st.session_state["saved_batch_size"] = int(saved["batch_size"])
@@ -166,7 +166,7 @@ def render() -> None:
                 dh = int(saved["height"])
             if saved.get("cost_per_hour"):
                 dc = int(saved["cost_per_hour"])
-            if saved.get("cam_rate"):
+            if saved.get("cam_rate") is not None:
                 st.session_state["cam_rate"] = int(saved["cam_rate"])
             if saved.get("batch_size"):
                 st.session_state["saved_batch_size"] = int(saved["batch_size"])

@@ -287,6 +287,7 @@ AABB `cross_round` — **вспомогательный** признак, нед
 | Колесо компрессора | `impeller`, 5-ось, без ложной токарки |
 | Вал намотки | `hybrid` / oversize + hybrid_turn_mill, токарка + фреза |
 | Плоская плита | `plate`, «Плита», без токарки |
+| STUD.122 Стойка M3 шестигр. | `rod`, `hex_head_stud`, «Токарная» + «Фрезерная» (только г-head), пруток |
 
 ---
 
@@ -296,3 +297,4 @@ AABB `cross_round` — **вспомогательный** признак, нед
 |------|-----------|
 | 2026-06-02 | `rotation_confidence`, outer/bore, кейсы bar/forging/disc — см. TZ-turning |
 | 2026-06-22 | Гильза: TORUS ≠ impeller; resolve impeller→rod; keyway/резьба из чертежа; коммит `0011656` |
+| 2026-06-22 | **STUD.122 / шпильки с шестигранником:** `_is_hex_head_stud` в `extractor.py` — токарка тела+резьбы при `rotation_confidence≈0`; флаг `hex_head_stud` в geometry/data.txt. **Калькуляция:** `machining_cost.py` — раздельное резание (токарка + шестигр. + резьба); `cam_rate=0` не подменяется DEFAULT; UI `_format_hours_h` — субминутное время не округляется до 0. Тесты: `test_hex_stud_classify`, `test_hex_stud_cutting`, `test_format_hours_subminute`, `test_cam_rate_zero_with_criteria`. |

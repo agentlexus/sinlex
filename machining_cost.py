@@ -17,6 +17,13 @@ BATCH_CUTTING_FACTOR = {1: 1.0, 10: 0.5, 50: 0.3, 100: 0.2, 200: 0.15, 500: 0.1}
 BATCH_CAM_AMORT = {1: 1.0, 10: 0.55, 50: 0.30, 100: 0.22, 200: 0.16, 500: 0.12}
 # Ставка инженера-программиста, ₽/ч (можно переопределить SINLEX_CAM_RATE)
 DEFAULT_CAM_RATE = int(os.environ.get("SINLEX_CAM_RATE", "1000"))
+
+
+def _resolve_cam_rate(value: Optional[float]) -> float:
+    """Ставка CAM ₽/ч; 0 — валидное значение (программист не тарифицируется)."""
+    if value is not None:
+        return float(value)
+    return float(DEFAULT_CAM_RATE)
 # УП считаем только для средней и высокой сложности; низкая — без вкладки и без ₽
 CAM_APPLY_COMPLEXITIES = frozenset({"средняя", "высокая"})
 # Доп. множитель времени УП для высокой сложности (средняя = 1.0)
@@ -159,6 +166,141 @@ def removal_rate_cm3_h(
         if "Алюминий" in mat:
             rr *= 2.4  # ×2 (крупный станок) ×1.2
     return rr
+
+
+# Множители скорости съёма относительно removal_rate_cm3_h (фрезерная база)
+_HEX_STUD_TURN_RATE_MULT = 1.35
+_HEX_STUD_MILL_RATE_MULT = 0.50
+_HEX_STUD_MILL_VOL_MIN_SHARE = 0.06
+_HEX_STUD_MILL_VOL_MAX_SHARE = 0.32
+
+
+def _hex_head_stud_active(operations: List[str], geometry: Optional[Dict[str, Any]]) -> bool:
+    geometry = geometry or {}
+    if not geometry.get("hex_head_stud"):
+        return False
+    ops = [str(o).lower() for o in (operations or [])]
+    return any("токар" in o for o in ops) and any("фрез" in o for o in ops)
+
+
+def _hex_head_length_mm(
+    geometry: Dict[str, Any],
+    dimensions: Optional[Dict[str, Any]],
+    body_d: float,
+) -> float:
+    dims = dimensions or {}
+    x = float(dims.get("x") or 0)
+    y = float(dims.get("y") or 0)
+    z = float(dims.get("z") or 0)
+    if x > 0 and y > 0 and z > 0:
+        sm, _mid, lg = sorted([x, y, z])
+        return max(min(sm * 1.15, lg * 0.42), 3.5)
+    return max(min(body_d * 1.15, 7.0), 4.0)
+
+
+def _hex_stud_thread_length_mm(geometry: Dict[str, Any], body_d: float) -> float:
+    holes = geometry.get("holes") or []
+    thread_len = 0.0
+    for h in holes:
+        if str(h.get("feature") or "") != "bore":
+            continue
+        d = float(h.get("diameter") or 0)
+        if 0 < d <= 4.5:
+            thread_len = max(thread_len, min(body_d * 1.8, 14.0))
+    return thread_len
+
+
+def _split_hex_stud_removal_cm3(
+    total_removal_cm3: float,
+    geometry: Dict[str, Any],
+    *,
+    dimensions: Optional[Dict[str, Any]] = None,
+) -> Dict[str, float]:
+    """Доля съёма: токарка (тело) vs фрезеровка (шестигранник на торце)."""
+    shafts = geometry.get("shafts") or []
+    body_ds = [
+        float(s.get("diameter") or 0)
+        for s in shafts
+        if s.get("feature") == "body" and float(s.get("diameter") or 0) > 0
+    ]
+    body_d = max(body_ds) if body_ds else 0.0
+    if body_d <= 0:
+        rp = geometry.get("rotation_profile") or {}
+        body_d = float(rp.get("outer_diameter_mm") or 5.0)
+
+    dims = dimensions or {}
+    x = float(dims.get("x") or 0)
+    y = float(dims.get("y") or 0)
+    z = float(dims.get("z") or 0)
+    if x > 0 and y > 0 and z > 0:
+        sm, _mid, _lg = sorted([x, y, z])
+        across = sm
+    else:
+        across = body_d * 0.93
+
+    head_len = _hex_head_length_mm(geometry, dimensions, body_d)
+    cyl_mm3 = math.pi * (body_d / 2.0) ** 2 * head_len
+    hex_mm3 = (3.0 * math.sqrt(3.0) / 8.0) * across ** 2 * head_len
+    mill_mm3 = max(cyl_mm3 - hex_mm3, 0.0)
+    mill_cm3 = mill_mm3 / 1000.0
+
+    total = max(float(total_removal_cm3), 1e-6)
+    mill_cm3 = min(mill_cm3, total * _HEX_STUD_MILL_VOL_MAX_SHARE)
+    mill_cm3 = max(mill_cm3, total * _HEX_STUD_MILL_VOL_MIN_SHARE)
+    turn_cm3 = max(total - mill_cm3, total * (1.0 - _HEX_STUD_MILL_VOL_MAX_SHARE))
+
+    return {
+        "turn_cm3": turn_cm3,
+        "mill_cm3": mill_cm3,
+        "body_d_mm": body_d,
+        "head_len_mm": head_len,
+        "across_flats_mm": across,
+    }
+
+
+def _cutting_hours_hex_head_stud(
+    removal_volume_cm3: float,
+    removal_rate: float,
+    batch_size: int,
+    geometry: Dict[str, Any],
+    *,
+    dimensions: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
+    """Шпилька с шестигранником: токарка тела + фрезеровка г-head + резьба."""
+    rr_base = max(float(removal_rate), 1e-6)
+    split = _split_hex_stud_removal_cm3(
+        removal_volume_cm3, geometry, dimensions=dimensions
+    )
+    rr_turn = rr_base * _HEX_STUD_TURN_RATE_MULT
+    rr_mill = rr_base * _HEX_STUD_MILL_RATE_MULT
+
+    turn_h = split["turn_cm3"] / rr_turn
+    mill_h = split["mill_cm3"] / rr_mill
+
+    thread_len = _hex_stud_thread_length_mm(geometry, split["body_d_mm"])
+    thread_h = 0.0
+    if thread_len > 0:
+        # M2–M6 на токарке: ~36 с база + 1.2 с/мм резьбы
+        thread_h = (36.0 + 1.2 * thread_len) / 3600.0
+
+    cut_fct = _interp_curve(batch_size, BATCH_CUTTING_FACTOR)
+    gross_h = (turn_h + mill_h + thread_h) * cut_fct
+    return {
+        "cutting_per_part_h": gross_h,
+        "cut_fct": cut_fct,
+        "bmh": turn_h + mill_h + thread_h,
+        "cutting_breakdown": {
+            "mode": "hex_head_stud",
+            "turn_h": turn_h * cut_fct,
+            "mill_h": mill_h * cut_fct,
+            "thread_h": thread_h * cut_fct,
+            "turn_cm3": split["turn_cm3"],
+            "mill_cm3": split["mill_cm3"],
+            "thread_len_mm": thread_len,
+            "head_len_mm": split["head_len_mm"],
+        },
+    }
+
 
 
 def count_process_stations(
@@ -433,7 +575,7 @@ def apply_drawing_criteria_to_quote(
         cam_full_adj = (cam_full_adj + thread_cam_h + keyway_cam_h) * cam_mult
         cam_batch_adj = cam_full_adj * cam_amort
         cam_per_adj = cam_batch_adj / batch
-        cam_rate = float(quote.get("cam_rate") or DEFAULT_CAM_RATE)
+        cam_rate = _resolve_cam_rate(quote.get("cam_rate"))
         cam_cost_batch = cam_batch_adj * cam_rate
 
     out.update(
@@ -485,12 +627,28 @@ def _compute_machining_quote_base(
     workpiece_type: str = "",
     part_family: str = "",
     cam_rate_per_hour: Optional[float] = None,
+    dimensions: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """Базовый расчёт без критериев чертежа."""
-    rr = max(float(removal_rate), 1e-6)
-    bmh = float(removal_volume_cm3) / rr
-    cut_fct = _interp_curve(batch_size, BATCH_CUTTING_FACTOR)
-    cutting_per_part_h = bmh * cut_fct
+    geometry = geometry or {}
+    cutting_breakdown: Optional[Dict[str, Any]] = None
+    if _hex_head_stud_active(operations, geometry):
+        hex_cut = _cutting_hours_hex_head_stud(
+            removal_volume_cm3,
+            removal_rate,
+            batch_size,
+            geometry,
+            dimensions=dimensions,
+        )
+        cutting_per_part_h = hex_cut["cutting_per_part_h"]
+        cut_fct = hex_cut["cut_fct"]
+        bmh = hex_cut["bmh"]
+        cutting_breakdown = hex_cut["cutting_breakdown"]
+    else:
+        rr = max(float(removal_rate), 1e-6)
+        bmh = float(removal_volume_cm3) / rr
+        cut_fct = _interp_curve(batch_size, BATCH_CUTTING_FACTOR)
+        cutting_per_part_h = bmh * cut_fct
 
     mass_kg = part_mass_kg(model_volume_mm3, density_g_cm3)
     setup_parts = setup_hours_full(
@@ -513,14 +671,14 @@ def _compute_machining_quote_base(
         cam_amort = _interp_curve(batch_size, BATCH_CAM_AMORT)
         cam_batch_h = cam_full_h * cam_amort
         cam_per_part_h = cam_batch_h / max(int(batch_size), 1)
-        cam_rate = float(cam_rate_per_hour if cam_rate_per_hour is not None else DEFAULT_CAM_RATE)
+        cam_rate = _resolve_cam_rate(cam_rate_per_hour)
         cam_cost_batch = cam_batch_h * cam_rate
     else:
         cam_parts = _empty_cam_breakdown()
         cam_full_h = cam_amort = cam_batch_h = cam_per_part_h = cam_cost_batch = 0.0
-        cam_rate = float(cam_rate_per_hour if cam_rate_per_hour is not None else DEFAULT_CAM_RATE)
+        cam_rate = _resolve_cam_rate(cam_rate_per_hour)
 
-    return {
+    out = {
         "bmh": bmh,
         "cut_fct": cut_fct,
         "cutting_per_part_h": cutting_per_part_h,
@@ -541,6 +699,9 @@ def _compute_machining_quote_base(
         "cam_breakdown": cam_parts,
         "cam_applies": cam_applies,
     }
+    if cutting_breakdown is not None:
+        out["cutting_breakdown"] = cutting_breakdown
+    return out
 
 
 def compute_machining_quote(
@@ -556,6 +717,7 @@ def compute_machining_quote(
     part_family: str = "",
     cam_rate_per_hour: Optional[float] = None,
     drawing_criteria: Optional[Dict[str, Any]] = None,
+    dimensions: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """Время резания, наладка, CAM; при drawing_criteria — модификаторы чертежа."""
     base = _compute_machining_quote_base(
@@ -569,6 +731,7 @@ def compute_machining_quote(
         workpiece_type=workpiece_type,
         part_family=part_family,
         cam_rate_per_hour=cam_rate_per_hour,
+        dimensions=dimensions,
     )
     return apply_drawing_criteria_to_quote(
         base,

@@ -110,12 +110,28 @@ def infer_operations_from_geometry(geometry: dict, dimensions: dict = None) -> l
     ops: list = []
 
     rotational = cyl >= 3 and elong >= 1.2
-    if rotational:
+    hex_stud = bool(geometry.get("hex_head_stud"))
+    if not hex_stud and str(geometry.get("part_family") or "") == "rod":
+        rp = geometry.get("rotation_profile") or {}
+        x, y, z = (
+            float(dimensions.get("x") or 0),
+            float(dimensions.get("y") or 0),
+            float(dimensions.get("z") or 0),
+        )
+        if x and y and z:
+            sm, mid, lg = sorted([x, y, z])
+            cross_square = abs(sm - mid) / max(sm, mid, 1e-9) < 0.15
+            outer_share = float(rp.get("outer_cyl_area_share") or 0)
+            hex_stud = cross_square and outer_share < 0.25 and plane >= 4 and elong >= 1.3
+
+    if rotational or hex_stud:
         ops.append("Токарная")
 
     needs_5axis = fc >= 120 or di >= 12.0
     if needs_5axis:
         ops.append("Фрезерная (5-осевая)")
+    elif hex_stud:
+        ops.append("Фрезерная")
     elif plane >= 4 or fc >= 30 or (rotational and (plane >= 2 or cyl >= 20)):
         if "Фрезерная (5-осевая)" not in ops:
             ops.append("Фрезерная")
@@ -611,7 +627,7 @@ def run_step_analysis(file_name: str, file_bytes: bytes, project_name: str) -> f
                 st.session_state["hei"] = int(saved["height"])
             if saved.get("cost_per_hour"):
                 st.session_state["cost_h"] = int(saved["cost_per_hour"])
-            if saved.get("cam_rate"):
+            if saved.get("cam_rate") is not None:
                 st.session_state["cam_rate"] = int(saved["cam_rate"])
             if saved.get("batch_size"):
                 st.session_state["saved_batch_size"] = int(saved["batch_size"])

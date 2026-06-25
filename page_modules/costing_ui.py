@@ -28,8 +28,14 @@ _CRITERIA_CODE_LABELS: Dict[str, str] = {
 
 
 def _format_hours_h(value: float) -> str:
+    value = float(value or 0)
+    if value <= 0:
+        return "0 мин"
     if value < 1:
-        return f"{round(value * 60)} мин"
+        minutes = value * 60
+        if minutes < 10:
+            return f"{minutes:.1f} мин"
+        return f"{round(minutes)} мин"
     return f"{value:.2f} ч"
 
 
@@ -451,6 +457,7 @@ def compute_costing_snapshot(
         part_family=part_family_code,
         cam_rate_per_hour=cam_rate,
         drawing_criteria=drawing_criteria,
+        dimensions=dimensions,
     )
     cutting_per_part_h = mq["cutting_per_part_h"]
     setup_batch_h = mq["setup_batch_h"]
@@ -502,6 +509,7 @@ def compute_costing_snapshot(
         "quote_adjusted": mq.get("quote_adjusted"),
         "criteria_breakdown": mq.get("criteria_breakdown"),
         "grind_price_mult": grind_price_mult,
+        "cutting_breakdown": mq.get("cutting_breakdown"),
         "d1_cost": d1_cost,
         "l1_cost": l1_cost,
         "w1_cost": w1_cost,
@@ -542,6 +550,7 @@ def render_costing_section(
     mhpu = snap["mhpu"]
     mht = snap["mht"]
     cutting_per_part_h = snap["cutting_per_part_h"]
+    cutting_breakdown = snap.get("cutting_breakdown")
     setup_per_part_h = snap["setup_per_part_h"]
     cam_per_part_h = snap["cam_per_part_h"]
     sm = snap["sm"]
@@ -624,25 +633,22 @@ def render_costing_section(
         st.write(f"Стружка (партия {batch_size} шт.): **{chips_kg_batch:.2f} кг**")
         st.write(f"♻ Возврат (партия {batch_size} шт.): **{int(cr):,} ₽**".replace(",", " "))
     with t2:
-        st.write(
-            f"Обработка/деталь: **{round(cutting_per_part_h * 60)} мин**"
-            if cutting_per_part_h < 1
-            else f"Обработка/деталь: **{round(cutting_per_part_h, 2)} ч**"
-        )
-        st.write(
-            f"Общее время (вкл. наладку): **{round(mhpu * 60)} мин**"
-            if mhpu < 1
-            else f"Общее время (вкл. наладку): **{round(mhpu, 2)} ч**"
-        )
-        st.write(
-            f"Изготовление (партия {batch_size} шт.): **{round(mht * 60)} мин**"
-            if mht < 1
-            else f"Изготовление (партия {batch_size} шт.): **{round(mht, 1)} ч**"
-        )
+        st.write(f"Обработка/деталь: **{_format_hours_h(cutting_per_part_h)}**")
+        cut_bd = snap.get("cutting_breakdown") or {}
+        if cut_bd.get("mode") == "hex_head_stud":
+            st.caption(
+                "токарка "
+                f"{_format_hours_h(float(cut_bd.get('turn_h') or 0))} + "
+                "шестигр. "
+                f"{_format_hours_h(float(cut_bd.get('mill_h') or 0))} + "
+                "резьба "
+                f"{_format_hours_h(float(cut_bd.get('thread_h') or 0))}"
+            )
+        st.write(f"Общее время (вкл. наладку): **{_format_hours_h(mhpu)}**")
+        batch_label = f"{_format_hours_h(mht)}" if batch_size == 1 else f"{_format_hours_h(mht)}"
+        st.write(f"Изготовление (партия {batch_size} шт.): **{batch_label}**")
         st.caption(
-            f"≈ **{round(mhpu * 60)} мин**/шт"
-            if mhpu < 1
-            else f"≈ **{round(mhpu, 2)} ч**/шт (обработка + наладка на деталь)"
+            f"≈ **{_format_hours_h(mhpu)}**/шт (обработка + наладка на деталь)"
         )
         st.write(f"Ставка: **{cph:,} ₽**".replace(",", " "))
         st.write(f"Изготовление: **{int(mcst / batch_size):,} ₽/шт**".replace(",", " "))
@@ -659,11 +665,7 @@ def render_costing_section(
             f"На партию ({batch_size} шт.): **{setup_batch_h:.1f} ч** "
             f"(от **{setup_full_h:.1f} ч** при 1 шт., аморт. **{setup_amort:.0%}**)"
         )
-        st.write(
-            f"На деталь: **{round(setup_per_part_h * 60)} мин**"
-            if setup_per_part_h < 1
-            else f"На деталь: **{setup_per_part_h:.2f} ч**"
-        )
+        st.write(f"На деталь: **{_format_hours_h(setup_per_part_h)}**")
     if t_criteria is not None:
         with t_criteria:
             render_drawing_criteria_tab(drawing_criteria, criteria_breakdown)
@@ -684,11 +686,7 @@ def render_costing_section(
                 f"На партию: **{cam_batch_h:.1f} ч** "
                 f"(от **{cam_full_h:.1f} ч** при 1 шт., аморт. **{cam_amort:.0%}**)"
             )
-            st.write(
-                f"На деталь: **{round(cam_per_part_h * 60)} мин**"
-                if cam_per_part_h < 1
-                else f"На деталь: **{cam_per_part_h:.2f} ч**"
-            )
+            st.write(f"На деталь: **{_format_hours_h(cam_per_part_h)}**")
 
     return {
         "cpu": cpu,
