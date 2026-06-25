@@ -27,7 +27,7 @@ _FLOW_HERO_BG_PATH = os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
     "static",
     "flow",
-    "hero-bg.jpg",
+    "hero-bg.png",
 )
 
 
@@ -37,7 +37,7 @@ def _flow_hero_bg_data_uri() -> str:
             import base64
 
             encoded = base64.b64encode(f.read()).decode("ascii")
-        return f"data:image/jpeg;base64,{encoded}"
+        return f"data:image/png;base64,{encoded}"
     except OSError:
         return ""
 
