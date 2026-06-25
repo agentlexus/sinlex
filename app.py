@@ -676,6 +676,31 @@ def _sidebar_nav_css(active_key: str = "") -> str:
     -webkit-text-fill-color: {text_color} !important;
 }}
 """
+    css += """
+[data-testid="stSidebar"] .st-key-nav_flow button,
+[data-testid="stSidebar"] [class*="st-key-nav_flow"] button {
+    border-left: 3px solid transparent !important;
+    padding-left: calc(0.45rem - 3px) !important;
+}
+[data-testid="stSidebar"] .st-key-nav_flow button:hover,
+[data-testid="stSidebar"] [class*="st-key-nav_flow"] button:hover {
+    background-color: rgba(20, 184, 166, 0.14) !important;
+}
+[data-testid="stSidebar"] .st-key-nav_flow button [data-testid="stIconMaterial"],
+[data-testid="stSidebar"] [class*="st-key-nav_flow"] button [data-testid="stIconMaterial"] {
+    color: #0d9488 !important;
+}
+"""
+    if active_key == "nav_flow":
+        css += """
+[data-testid="stSidebar"] .st-key-nav_flow button,
+[data-testid="stSidebar"] [class*="st-key-nav_flow"] button,
+[data-testid="stSidebar"] .st-key-nav_flow button:hover,
+[data-testid="stSidebar"] [class*="st-key-nav_flow"] button:hover {
+    border-left-color: #14b8a6 !important;
+    background-color: #ffffff !important;
+}
+"""
     return css
 
 
@@ -933,7 +958,7 @@ with st.sidebar:
         st.session_state.project_domain = "casting"
         st.session_state.page = "casting"
         st.rerun()
-    if st.button("🌀 Поток", key="nav_flow"):
+    if st.button("Поток", key="nav_flow", icon=":material/verified_user:"):
         st.session_state.page = "flow"
         st.rerun()
     if st.button("Мои заказы", key="nav_orders"):

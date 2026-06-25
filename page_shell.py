@@ -298,6 +298,24 @@ div[class*="st-key-global_flow_topup_btn"] button div {
     max-width: none !important;
     overflow: visible !important;
 }
+[class*="st-key-global_flow_balance_popover"] .stPopover > button {
+    color: #0d9488 !important;
+    -webkit-text-fill-color: #0d9488 !important;
+    border: 1px solid rgba(20, 184, 166, 0.38) !important;
+    background: rgba(20, 184, 166, 0.07) !important;
+    border-radius: 8px !important;
+}
+[class*="st-key-global_flow_balance_popover"] .stPopover > button:hover {
+    background: rgba(20, 184, 166, 0.13) !important;
+    border-color: rgba(20, 184, 166, 0.55) !important;
+    color: #0f766e !important;
+    -webkit-text-fill-color: #0f766e !important;
+}
+[class*="st-key-global_flow_balance_popover"] .stPopover > button [data-testid="stIconMaterial"],
+[class*="st-key-global_flow_balance_popover"] .stPopover > button p {
+    color: inherit !important;
+    -webkit-text-fill-color: inherit !important;
+}
 </style>
 """
 
@@ -314,6 +332,11 @@ def topbar_user_data() -> tuple[str, str]:
     ).strip()
     return company, email
 
+
+
+def format_flow_rub(amount: int) -> str:
+    """Сумма баланса «Поток» для UI."""
+    return f"{int(amount):,} ₽".replace(",", " ")
 
 
 def fetch_flow_balance() -> int:
@@ -341,9 +364,10 @@ def render_app_flow_balance_bar() -> None:
         return
     st.markdown(_FLOW_TOPBAR_CSS, unsafe_allow_html=True)
     flow_bal = fetch_flow_balance()
+    balance_label = f"Баланс · {format_flow_rub(flow_bal)}"
     with st.container(key="app_topbar_flow"):
         _spacer, col_user, col_bal = st.columns(
-            [1, 0.22, 0.2], gap="xsmall", vertical_alignment="center"
+            [1, 0.2, 0.32], gap="xsmall", vertical_alignment="center"
         )
         with col_user:
             company, email = topbar_user_data()
@@ -357,8 +381,12 @@ def render_app_flow_balance_bar() -> None:
                     elif not company:
                         st.caption("Email не задан")
         with col_bal:
-            with st.popover("Баланс", icon="🌀", key="global_flow_balance_popover"):
-                st.metric('Режим "Поток"', f"{flow_bal:,} ₽".replace(",", " "))
+            with st.popover(
+                balance_label,
+                icon=":material/account_balance_wallet:",
+                key="global_flow_balance_popover",
+            ):
+                st.metric("Доступно", format_flow_rub(flow_bal))
                 st.caption("Баланс используется для анализа чертежей.")
                 if st.button(
                     "Пополнить баланс",
@@ -418,7 +446,7 @@ def _on_flow_topup_dialog_dismiss() -> None:
 @st.dialog(
     "Пополнение баланса «Поток»",
     width="small",
-    icon="🌀",
+    icon=":material/account_balance_wallet:",
     on_dismiss=_on_flow_topup_dialog_dismiss,
 )
 def flow_topup_dialog() -> None:
