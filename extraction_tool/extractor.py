@@ -2447,6 +2447,54 @@ def _infer_workpiece(
     }
 
 
+# detail_index = sa_v * vol^(1/3) — масштаб-инвариант; сырой sa/v завышает мелкие детали.
+_COMPLEXITY_DI_VHIGH = 17.0
+_COMPLEXITY_DI_HIGH_SMALL = 14.0
+_COMPLEXITY_DI_MEDIUM = 7.0
+_COMPLEXITY_SA_V_MIN_VOL_MM3 = 8000.0
+
+
+def _classify_complexity_hint(
+    *,
+    detail_index: float,
+    sa_v: float,
+    volume_mm3: float,
+    face_count: int,
+    part_family: str,
+    hybrid_turn_mill: bool = False,
+    hex_head_stud: bool = False,
+) -> str:
+    """
+    Класс сложности: крупные детали — sa/v (как раньше); мелкие — detail_index,
+    чтобы крепёж не получал «высокую» только из-за малого объёма.
+    """
+    fc = int(face_count or 0)
+    di = float(detail_index or 0)
+    vol = max(float(volume_mm3 or 0), 0.0)
+    small_part = vol < _COMPLEXITY_SA_V_MIN_VOL_MM3
+
+    if fc > 500 or part_family == "hybrid_shaft" or hybrid_turn_mill:
+        return "высокая"
+    if di >= _COMPLEXITY_DI_VHIGH:
+        return "высокая"
+    if small_part:
+        if di >= _COMPLEXITY_DI_HIGH_SMALL:
+            return "высокая"
+    elif sa_v > 0.3:
+        return "высокая"
+
+    if fc > 100:
+        return "средняя"
+    if small_part:
+        tier = "средняя" if di >= _COMPLEXITY_DI_MEDIUM else "низкая"
+        if hex_head_stud and di < 10.0 and fc < 120:
+            return "низкая"
+        return tier
+    if sa_v > 0.15:
+        return "средняя"
+    return "низкая"
+
+
 def _complexity_metrics(
     volume: float,
     area: float,
@@ -2457,6 +2505,7 @@ def _complexity_metrics(
     part_family: str = "plate",
     *,
     hybrid_turn_mill: bool = False,
+    hex_head_stud: bool = False,
 ) -> Dict[str, Any]:
     """Безразмерные индексы сложности (не зависят только от объёма)."""
     vol = max(volume, 1e-9)
@@ -2483,16 +2532,14 @@ def _complexity_metrics(
     else:
         part_type = "Плита"
 
-    complexity = (
-        "высокая"
-        if sa_v > 0.3
-        or fc > 500
-        or part_family == "hybrid_shaft"
-        or hybrid_turn_mill
-        or detail_index >= 17.0
-        else "средняя"
-        if sa_v > 0.15 or fc > 100
-        else "низкая"
+    complexity = _classify_complexity_hint(
+        detail_index=detail_index,
+        sa_v=sa_v,
+        volume_mm3=vol,
+        face_count=fc,
+        part_family=part_family,
+        hybrid_turn_mill=hybrid_turn_mill,
+        hex_head_stud=hex_head_stud,
     )
     return {
         "surface_to_volume_ratio": round(sa_v, 5),
@@ -2662,6 +2709,7 @@ def extract_step_path(
             holes,
             part_family=part_family,
             hybrid_turn_mill=hybrid_turn_mill,
+            hex_head_stud=bool(proc_meta.get("hex_head_stud")) if proc_meta else False,
         )
         complexity["thin_walls_hint"] = wall_info.get("thin_walls", False)
         complexity["operations"] = processes
