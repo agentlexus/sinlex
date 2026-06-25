@@ -11,7 +11,7 @@ _DELETE_ICON_PATH = os.path.join(
     os.path.dirname(os.path.abspath(__file__)),
     "static",
     "icons",
-    "delete.png",
+    "delete.svg",
 )
 _DELETE_KEY_PREFIX = "sinlex_del"
 _DELETE_BTN_LABEL = "\u00a0"
@@ -21,7 +21,7 @@ _DELETE_BTN_LABEL = "\u00a0"
 def _delete_icon_data_uri() -> str:
     with open(_DELETE_ICON_PATH, "rb") as f:
         encoded = base64.b64encode(f.read()).decode("ascii")
-    return f"data:image/png;base64,{encoded}"
+    return f"data:image/svg+xml;base64,{encoded}"
 
 
 def delete_button_label() -> str:
