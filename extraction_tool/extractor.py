@@ -2124,6 +2124,26 @@ def _needs_5axis_milling(
     )
 
 
+def _is_coaxial_bar_turning(rot_profile: Optional[Dict[str, Any]]) -> bool:
+    """Пруток/вал: вращательное тело с осью вдоль главной оси (осевые карманы — токарка)."""
+    rot_profile = rot_profile or {}
+    if rot_profile.get("turning_case") != "bar" or not rot_profile.get("rotational"):
+        return False
+    coax = float(rot_profile.get("main_axis_coaxiality") or 0)
+    ld = float(rot_profile.get("ld_ratio") or 0)
+    return coax >= 0.85 or ld >= 2.0
+
+
+def _rod_blind_15_needs_milling(
+    rod_meta: Dict[str, Any],
+    rot_profile: Optional[Dict[str, Any]],
+) -> bool:
+    """Осевой карман Ø15 на диске/фланце — фрезеровка; на коаксиальном прутке — токарка."""
+    if not rod_meta.get("has_blind_15"):
+        return False
+    return not _is_coaxial_bar_turning(rot_profile)
+
+
 def _infer_processes(
     face_counts: Dict[str, int],
     bbox: Dict[str, float],
@@ -2195,21 +2215,34 @@ def _infer_processes(
         processes.append("Фрезерная")
     elif not simple_blank:
         # Диск/маховик: 2 установки на 3-оси после токарки (отверстия, контур, фаски)
+        coaxial_bar = _is_coaxial_bar_turning(rot_profile)
         rod_needs_milling = part_family == "rod" and (
             rod_meta.get("has_keyway")
             or rod_meta.get("has_m6")
-            or rod_meta.get("has_blind_15")
+            or _rod_blind_15_needs_milling(rod_meta, rot_profile)
         )
         # Чисто токарные валы/ролики: вращательное тело, без явных признаков фрезеровки.
-        # Допускаются фаски/галтелки и осевые отверстия, но нет боковых плоскостей/карманов.
+        # Допускаются фаски/галтелки и осевые отверстия/карманы на коаксиальном прутке.
+        plane_cap = 6 if coaxial_bar else 2
+        holes_cap = 3 if coaxial_bar else 1
         pure_rod_turning_only = (
             part_family == "rod"
             and not hybrid_turn_mill
             and not rod_needs_milling
             and rotational
-            and holes_n <= 1
-            and plane <= 2
+            and holes_n <= holes_cap
+            and plane <= plane_cap
         )
+        if coaxial_bar and not rod_needs_milling:
+            rot_mill_hint = (
+                (rotational and face_count < 120 and (plane > plane_cap or holes_n > holes_cap or cone >= 3))
+                or (rotational and (plane > 8 or other >= 6))
+            )
+        else:
+            rot_mill_hint = (
+                (rotational and face_count < 120 and (plane >= 2 or holes_n >= 3 or cone >= 2))
+                or (rotational and (plane > 4 or other >= 4))
+            )
         needs_3axis = (
             not pure_rod_turning_only
             and (
@@ -2217,8 +2250,7 @@ def _infer_processes(
                 or rod_needs_milling
                 or plane >= 6
                 or other >= 8
-                or (rotational and face_count < 120 and (plane >= 2 or holes_n >= 3 or cone >= 2))
-                or (rotational and (plane > 4 or other >= 4))
+                or rot_mill_hint
                 or (not rotational and (plane >= 4 or cone >= 2))
             )
         )
