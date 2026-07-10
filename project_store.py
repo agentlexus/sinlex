@@ -47,6 +47,29 @@ _USER_SCALAR_KEYS = frozenset({
     "allowance_mm",
 })
 
+# Артефакты чертежа / LLM — не затирать при пересохранении STEP-анализа
+_PRESERVE_EXTRA_KEYS = frozenset({
+    "drawing_extraction",
+    "drawing_manufacturing_criteria",
+})
+
+
+def normalize_step_analysis(analysis: Dict[str, Any]) -> Dict[str, Any]:
+    """Привести сырой ответ extract_step_path к формату analyze-step."""
+    if not analysis:
+        return analysis
+    raw = analysis.get("raw_json")
+    if isinstance(raw, dict) and raw.get("volume"):
+        return raw
+    if analysis.get("volume") and (
+        analysis.get("dimensions") or analysis.get("model_size")
+    ):
+        return analysis
+    if analysis.get("volume_mm3") is not None or analysis.get("finished_dimensions"):
+        from extraction_tool.extractor import to_api_format
+        return to_api_format(analysis)
+    return analysis
+
 
 def _safe_dir_name(project_name: str) -> str:
     return project_name.replace(" ", "_").replace("/", "_")
@@ -283,7 +306,7 @@ def persist_step_analysis(
     """Сохранить полный анализ STEP в data.txt, не затирая материал/заготовку."""
     existing = load_project_data(project_name, user_folder, storage=storage) if preserve_user_fields else {}
     record = record_from_step_analysis(
-        analysis,
+        normalize_step_analysis(analysis),
         project_name,
         analysis_version=analysis_version,
         step_digest=step_digest,
@@ -291,6 +314,9 @@ def persist_step_analysis(
     if preserve_user_fields:
         for key in _USER_SCALAR_KEYS:
             if key in existing and key not in user_overrides:
+                record[key] = existing[key]
+        for key in _PRESERVE_EXTRA_KEYS:
+            if key in existing and existing[key] is not None:
                 record[key] = existing[key]
     record.update({k: v for k, v in user_overrides.items() if v is not None})
     save_project_data(project_name, record, user_folder, storage=storage)
