@@ -572,22 +572,61 @@ canvas{{display:block}}
       const partSize = {{ x: size.x, y: size.y, z: size.z }};
       if (!isCastingView) {{
         var centeredBox = new THREE.Box3().setFromObject(model);
-        var gridY = centeredBox.min.y - maxDim * 0.01;
-        var gridSpan = Math.max(maxDim * 6, 4);
-        var gridDiv = Math.min(48, Math.max(20, Math.round(gridSpan / Math.max(maxDim * 0.1, 0.05))));
-        var projectGrid = new THREE.GridHelper(gridSpan, gridDiv, 0x3d8ec8, 0x7eb8dc);
-        projectGrid.position.y = gridY;
-        if (projectGrid.material) {{
-          var gridMats = Array.isArray(projectGrid.material) ? projectGrid.material : [projectGrid.material];
-          for (var gi = 0; gi < gridMats.length; gi++) {{
-            if (!gridMats[gi]) continue;
-            gridMats[gi].transparent = false;
-            gridMats[gi].opacity = 1;
-            gridMats[gi].depthWrite = true;
-          }}
+        var gridY = centeredBox.min.y - maxDim * 0.02;
+        var gridSpan = Math.max(maxDim * 8, 6);
+        var texSize = 512;
+        var canvas = document.createElement('canvas');
+        canvas.width = texSize;
+        canvas.height = texSize;
+        var ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#e6f3fb';
+        ctx.fillRect(0, 0, texSize, texSize);
+        var cells = 16;
+        var step = texSize / cells;
+        ctx.strokeStyle = '#5eb0d8';
+        ctx.lineWidth = 2;
+        for (var gi = 0; gi <= cells; gi++) {{
+          var p = Math.round(gi * step) + 0.5;
+          ctx.beginPath();
+          ctx.moveTo(p, 0);
+          ctx.lineTo(p, texSize);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(0, p);
+          ctx.lineTo(texSize, p);
+          ctx.stroke();
         }}
-        projectGrid.renderOrder = -1;
-        scene.add(projectGrid);
+        ctx.strokeStyle = '#2a7fad';
+        ctx.lineWidth = 3;
+        var mid = Math.round(texSize / 2) + 0.5;
+        ctx.beginPath();
+        ctx.moveTo(mid, 0);
+        ctx.lineTo(mid, texSize);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(0, mid);
+        ctx.lineTo(texSize, mid);
+        ctx.stroke();
+        var gridTex = new THREE.CanvasTexture(canvas);
+        gridTex.wrapS = THREE.RepeatWrapping;
+        gridTex.wrapT = THREE.RepeatWrapping;
+        gridTex.repeat.set(6, 6);
+        if (THREE.SRGBColorSpace) gridTex.colorSpace = THREE.SRGBColorSpace;
+        var gridPlane = new THREE.Mesh(
+          new THREE.PlaneGeometry(gridSpan, gridSpan),
+          new THREE.MeshBasicMaterial({{
+            map: gridTex,
+            transparent: true,
+            opacity: 0.92,
+            depthWrite: false,
+            side: THREE.DoubleSide,
+            toneMapped: false
+          }})
+        );
+        gridPlane.rotation.x = -Math.PI / 2;
+        gridPlane.position.y = gridY;
+        gridPlane.renderOrder = -2;
+        scene.add(gridPlane);
       }}
       if (isCastingView) {{
         var gridY = -size.y / 2;
