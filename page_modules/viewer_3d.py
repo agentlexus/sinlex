@@ -570,38 +570,17 @@ canvas{{display:block}}
       controls.update();
       scene.add(model);
       const partSize = {{ x: size.x, y: size.y, z: size.z }};
-      const GRID_COLOR_MAIN = 0x5ba8c8;
-      const GRID_COLOR_SUB = 0xb3d9ee;
-      const GRID_COLOR_HORIZON_MAIN = 0x7ec0dc;
-      const GRID_COLOR_HORIZON_SUB = 0xc8e6f5;
-      function tuneGridOpacity(grid, opacity) {{
-        if (!grid || !grid.material) return;
-        var mats = Array.isArray(grid.material) ? grid.material : [grid.material];
-        for (var i = 0; i < mats.length; i++) {{
-          if (!mats[i]) continue;
-          mats[i].transparent = true;
-          mats[i].opacity = opacity;
-        }}
-      }}
-      function addBluishFloorGrid(gridY, span, divisions, mainColor, subColor, opacity) {{
-        var grid = new THREE.GridHelper(span, divisions, mainColor, subColor);
-        grid.position.y = gridY;
-        tuneGridOpacity(grid, opacity);
-        scene.add(grid);
-        return grid;
-      }}
-      var gridY = -size.y / 2 - 0.0001;
       if (isCastingView) {{
+        var gridY = -size.y / 2;
         var fineSpan = Math.max(maxDim * 5, 1);
-        addBluishFloorGrid(gridY, fineSpan, 20, GRID_COLOR_MAIN, GRID_COLOR_SUB, 0.82);
+        var fineGrid = new THREE.GridHelper(fineSpan, 20, 0xaaaaaa, 0xd4d4d4);
+        fineGrid.position.y = gridY;
+        scene.add(fineGrid);
         var horizonSpan = Math.max(maxDim * 280, viewDist * 90, 60);
-        addBluishFloorGrid(
-          gridY - 0.0002, horizonSpan, 72, GRID_COLOR_HORIZON_MAIN, GRID_COLOR_HORIZON_SUB, 0.55
-        );
-      }} else {{
-        var gridSpan = Math.max(maxDim * 4.5, viewDist * 1.8, 2);
-        var gridDiv = Math.min(40, Math.max(18, Math.round(gridSpan / Math.max(maxDim * 0.12, 0.01))));
-        addBluishFloorGrid(gridY, gridSpan, gridDiv, GRID_COLOR_MAIN, GRID_COLOR_SUB, 0.78);
+        var horizonDiv = 72;
+        var horizonGrid = new THREE.GridHelper(horizonSpan, horizonDiv, 0xc8c8c8, 0xeaeaea);
+        horizonGrid.position.y = gridY - 0.0002;
+        scene.add(horizonGrid);
       }}
       let stockGroup = null;
       let stockOn = false;
