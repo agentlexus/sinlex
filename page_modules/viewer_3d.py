@@ -570,6 +570,25 @@ canvas{{display:block}}
       controls.update();
       scene.add(model);
       const partSize = {{ x: size.x, y: size.y, z: size.z }};
+      if (!isCastingView) {{
+        var centeredBox = new THREE.Box3().setFromObject(model);
+        var gridY = centeredBox.min.y - maxDim * 0.01;
+        var gridSpan = Math.max(maxDim * 6, 4);
+        var gridDiv = Math.min(48, Math.max(20, Math.round(gridSpan / Math.max(maxDim * 0.1, 0.05))));
+        var projectGrid = new THREE.GridHelper(gridSpan, gridDiv, 0x3d8ec8, 0x7eb8dc);
+        projectGrid.position.y = gridY;
+        if (projectGrid.material) {{
+          var gridMats = Array.isArray(projectGrid.material) ? projectGrid.material : [projectGrid.material];
+          for (var gi = 0; gi < gridMats.length; gi++) {{
+            if (!gridMats[gi]) continue;
+            gridMats[gi].transparent = false;
+            gridMats[gi].opacity = 1;
+            gridMats[gi].depthWrite = true;
+          }}
+        }}
+        projectGrid.renderOrder = -1;
+        scene.add(projectGrid);
+      }}
       if (isCastingView) {{
         var gridY = -size.y / 2;
         var fineSpan = Math.max(maxDim * 5, 1);
