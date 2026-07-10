@@ -61,12 +61,20 @@ from upload_step import (
     invalidate_step_analysis_cache,
     is_rod_wp,
     load_glb_and_analysis,
+    mark_user_blank_dims_locked,
     normalize_wp_type,
     project_key_slug,
+    project_baseline_from_save,
+    project_open_baseline,
+    project_registry_unchanged,
+    registry_frozen_quote,
     reconcile_blank_dims_from_analysis,
+    resolve_open_batch_size,
     reset_step_processing_session,
     restore_project_from_data,
     stage_glb_for_viewer,
+    step_analysis_cache_valid,
+    try_restore_analysis_from_data_txt,
     user_folder,
 )
 from utils import NGROK_URL, api_resource_prefix, get_headers, is_casting_mode, load_project_params, user_storage_root
@@ -91,6 +99,8 @@ def render() -> None:
 
     if st.session_state.selected_project:
         proj = st.session_state.selected_project
+        saved = {}
+        restored_from_disk = False
         try:
             file_resp = requests.get(
                 f"{NGROK_URL}/{api_resource_prefix()}/file/{proj['name']}",
@@ -98,7 +108,8 @@ def render() -> None:
                 timeout=10,
             )
             if file_resp.status_code == 200:
-                st.session_state.cached_step = file_resp.content
+                file_bytes = file_resp.content
+                st.session_state.cached_step = file_bytes
                 st.session_state.cached_step_name = f"{proj['name']}.stp"
                 dm = proj.get("material", dm)
                 dw = normalize_wp_type(proj.get("workpiece_type", dw))
@@ -110,16 +121,26 @@ def render() -> None:
                 st.session_state.auto_process = True
                 st.session_state.pop("glb_cache", None)
                 st.session_state.pop("cached_file_name", None)
-                invalidate_step_analysis_cache()
+                if try_restore_analysis_from_data_txt(proj["name"], file_bytes):
+                    restored_from_disk = True
+                else:
+                    from project_store import load_project_data
+
+                    disk = load_project_data(proj["name"], user_folder())
+                    invalidate_step_analysis_cache()
+                    restore_project_from_data(disk)
             else:
                 st.warning(f"⚠️ Файл проекта '{proj['name']}' не найден на сервере.")
         except Exception:
             st.warning("⚠️ Сервер проектов недоступен")
 
-        from project_store import load_project_data
+        if not restored_from_disk and not st.session_state.get("cached_step"):
+            from project_store import load_project_data
 
-        disk = load_project_data(proj["name"], user_folder())
-        restore_project_from_data(disk)
+            disk = load_project_data(proj["name"], user_folder())
+            if disk:
+                restore_project_from_data(disk)
+
         saved = load_project_params(proj["name"])
         if saved:
             if saved.get("material"):
@@ -138,19 +159,36 @@ def render() -> None:
                 dc = int(saved["cost_per_hour"])
             if saved.get("cam_rate") is not None:
                 st.session_state["cam_rate"] = int(saved["cam_rate"])
-            if saved.get("batch_size"):
-                st.session_state["saved_batch_size"] = int(saved["batch_size"])
-        reconcile_blank_dims_from_analysis()
+            mark_user_blank_dims_locked(saved)
+        open_batch = resolve_open_batch_size(proj, saved)
+        st.session_state["saved_batch_size"] = open_batch
+        if not restored_from_disk:
+            reconcile_blank_dims_from_analysis()
+        st.session_state["_project_open_baseline"] = project_open_baseline(
+            proj,
+            saved,
+            material=dm,
+            workpiece_type=dw,
+            diam=dd,
+            length=dl,
+            width=dwi,
+            height=dh,
+            cost_per_hour=dc,
+            batch_size=open_batch,
+        )
         clear_legacy_expert_session()
         st.session_state["_active_expert_slug"] = project_key_slug(proj["name"])
         st.session_state.selected_project = None
 
     elif "current_project" in st.session_state:
-        from project_store import load_project_data
+        cp = st.session_state["current_project"]
+        cached_bytes = st.session_state.get("cached_step")
+        if not (cached_bytes and step_analysis_cache_valid(cached_bytes)):
+            from project_store import load_project_data
 
-        disk = load_project_data(st.session_state["current_project"], user_folder())
-        restore_project_from_data(disk)
-        saved = load_project_params(st.session_state["current_project"])
+            disk = load_project_data(cp, user_folder())
+            restore_project_from_data(disk)
+        saved = load_project_params(cp)
         if saved:
             if saved.get("material"):
                 dm = saved["material"]
@@ -170,7 +208,7 @@ def render() -> None:
                 st.session_state["cam_rate"] = int(saved["cam_rate"])
             if saved.get("batch_size"):
                 st.session_state["saved_batch_size"] = int(saved["batch_size"])
-        reconcile_blank_dims_from_analysis()
+            mark_user_blank_dims_locked(saved)
 
     if "show_kp_download" in st.session_state:
         del st.session_state["show_kp_download"]
@@ -203,6 +241,7 @@ def render() -> None:
                 st.session_state.pop("glb_cache", None)
                 st.session_state.pop("cached_file_name", None)
                 st.session_state.pop("user_blank_dims_locked", None)
+                st.session_state.pop("_project_open_baseline", None)
                 invalidate_step_analysis_cache()
                 st.session_state.pop("model_size", None)
                 clear_legacy_expert_session()
@@ -341,6 +380,23 @@ def render() -> None:
     drawing_criteria = resolve_drawing_criteria_for_costing(
         slug, project_name, user_folder()
     )
+    baseline = st.session_state.get("_project_open_baseline")
+    frozen_quote = None
+    if baseline and project_registry_unchanged(
+        baseline,
+        {
+            "material": params.get("sm") or st.session_state.get("mat"),
+            "workpiece_type": params.get("wp") or st.session_state.get("wp"),
+            "diam": params.get("d1", 0),
+            "length": params.get("l1", 0),
+            "width": params.get("w1", 0),
+            "height": params.get("h1", 0),
+            "cost_per_hour": params.get("cph", 0),
+            "batch_size": params.get("batch_size", 1),
+            "cam_rate": int(st.session_state.get("cam_rate") or 0),
+        },
+    ):
+        frozen_quote = registry_frozen_quote(baseline)
     cost = render_costing_section(
         geometry=geometry,
         dimensions=dimensions,
@@ -348,6 +404,7 @@ def render() -> None:
         model_volume=model_volume,
         params=params,
         drawing_criteria=drawing_criteria,
+        frozen_quote=frozen_quote,
     )
     st.session_state[f"_cost_snapshot_{slug}"] = cost
 
@@ -395,50 +452,62 @@ def render() -> None:
     cph = cost["cph"]
     cpu, tc, mhpu = cost["cpu"], cost["tc"], cost["mhpu"]
 
+    baseline = st.session_state.get("_project_open_baseline")
+    save_params = {
+        "name": project_name,
+        "material": sm,
+        "volume": model_volume,
+        "workpiece_type": wp,
+        "diam": d1 if is_rod_wp(wp) else 0,
+        "length": l1,
+        "width": w1 if not is_rod_wp(wp) else 0,
+        "height": h1 if not is_rod_wp(wp) else 0,
+        "cost_per_hour": cph,
+        "cost_per_unit": int(cpu),
+        "total_cost": int(tc),
+        "machining_hours": f"{round(mhpu)} ч",
+        "batch_size": int(cost.get("batch_size") or st.session_state.get("saved_batch_size") or 1),
+        "cam_rate": int(st.session_state.get("cam_rate") or 0),
+    }
     saved_ok = True
-    try:
-        files_save = {"file": (file_name, file_bytes, "application/octet-stream")}
-        save_params = {
-            "name": project_name,
-            "material": sm,
-            "volume": model_volume,
-            "workpiece_type": wp,
-            "diam": d1 if is_rod_wp(wp) else 0,
-            "length": l1,
-            "width": w1 if not is_rod_wp(wp) else 0,
-            "height": h1 if not is_rod_wp(wp) else 0,
-            "cost_per_hour": cph,
-            "cost_per_unit": int(cpu),
-            "total_cost": int(tc),
-            "machining_hours": f"{round(mhpu)} ч",
-        }
-        resp_save = requests.post(
-            f"{NGROK_URL}/{api_resource_prefix()}/save",
-            files=files_save,
-            params=save_params,
-            headers=get_headers(),
-            timeout=15,
-        )
-        if resp_save.status_code == 200:
-            try:
-                payload = resp_save.json()
-                if isinstance(payload, dict) and payload.get("access"):
-                    st.session_state["access_state"] = payload["access"]
-            except Exception:
-                pass
-        else:
-            saved_ok = False
-            detail = ""
-            try:
-                payload = resp_save.json()
-                detail = payload.get("detail", "") if isinstance(payload, dict) else str(payload)
-            except Exception:
-                detail = resp_save.text
+    did_post_save = False
+    if project_registry_unchanged(baseline, save_params):
+        saved_ok = True
+    else:
+        did_post_save = True
+        try:
+            files_save = {"file": (file_name, file_bytes, "application/octet-stream")}
+            resp_save = requests.post(
+                f"{NGROK_URL}/{api_resource_prefix()}/save",
+                files=files_save,
+                params={k: v for k, v in save_params.items() if k not in ("batch_size", "cam_rate")},
+                headers=get_headers(),
+                timeout=15,
+            )
+            if resp_save.status_code == 200:
+                try:
+                    payload = resp_save.json()
+                    if isinstance(payload, dict) and payload.get("access"):
+                        st.session_state["access_state"] = payload["access"]
+                except Exception:
+                    pass
             else:
-                st.error(detail or "Не удалось сохранить проект")
-    except Exception:
-        saved_ok = False
+                saved_ok = False
+                detail = ""
+                try:
+                    payload = resp_save.json()
+                    detail = payload.get("detail", "") if isinstance(payload, dict) else str(payload)
+                except Exception:
+                    detail = resp_save.text
+                else:
+                    st.error(detail or "Не удалось сохранить проект")
+        except Exception:
+            saved_ok = False
 
     if saved_ok:
+        st.session_state["_project_open_baseline"] = project_baseline_from_save(
+            save_params, baseline
+        )
+    if did_post_save and saved_ok:
         from page_shell import refresh_casting_list, refresh_projects_list
         (refresh_casting_list if is_casting_mode() else refresh_projects_list)()

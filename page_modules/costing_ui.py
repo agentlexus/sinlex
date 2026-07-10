@@ -533,6 +533,7 @@ def render_costing_section(
     model_volume: float,
     params: dict,
     drawing_criteria: dict | None = None,
+    frozen_quote: dict | None = None,
 ) -> dict:
     """
     Расчёт и отображение стоимости. Возвращает dict с cpu, tc, mhpu, mht и пр. для техкарты/сохранения.
@@ -548,6 +549,12 @@ def render_costing_section(
     cpu = snap["cpu"]
     tc = snap["tc"]
     mhpu = snap["mhpu"]
+    if frozen_quote:
+        reg_cpu = int(frozen_quote.get("cpu") or 0)
+        reg_tc = int(frozen_quote.get("tc") or 0)
+        if reg_cpu > 0 and reg_tc > 0:
+            cpu = reg_cpu
+            tc = reg_tc
     mht = snap["mht"]
     cutting_per_part_h = snap["cutting_per_part_h"]
     cutting_breakdown = snap.get("cutting_breakdown")

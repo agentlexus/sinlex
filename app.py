@@ -130,8 +130,27 @@ if "auth_sid" not in st.session_state:
     st.session_state.auth_sid = None
 
 
+def _clear_workspace_on_user_change(new_email: str, new_folder: str) -> None:
+    old_email = st.session_state.get("user_email")
+    old_folder = (st.session_state.get("user_folder") or "").strip()
+    new_folder = (new_folder or "").strip()
+    if not old_email:
+        return
+    if old_email == new_email and old_folder == new_folder:
+        return
+    import sys
+
+    page_dir = Path(__file__).resolve().parent / "page_modules"
+    if str(page_dir) not in sys.path:
+        sys.path.insert(0, str(page_dir))
+    from upload_step import clear_user_workspace_session
+
+    clear_user_workspace_session()
+
+
 def _apply_session(sess: dict, sid: str) -> None:
     new_owner = (sess.get("folder") or sess.get("email") or "").strip()
+    _clear_workspace_on_user_change(sess["email"], sess.get("folder") or "")
     if (
         st.session_state.get("agent_sinlex_owner")
         and new_owner

@@ -332,6 +332,140 @@ def invalidate_step_analysis_cache() -> None:
         st.session_state.pop(key, None)
 
 
+def clear_user_workspace_session() -> None:
+    """Сброс кэша проекта при смене учётной записи (чтобы не смешивать чужие данные)."""
+    invalidate_step_analysis_cache()
+    for key in (
+        "cached_step",
+        "cached_step_name",
+        "glb_cache",
+        "glb_size",
+        "cached_file_name",
+        "model_volume_cache",
+        "current_project",
+        "selected_project",
+        "auto_process",
+        "cam_rate",
+        "saved_batch_size",
+        "user_blank_dims_locked",
+        "_project_open_baseline",
+        "_active_expert_slug",
+        "surface_area",
+        "detail_index",
+        "_step_load_in_progress",
+    ):
+        st.session_state.pop(key, None)
+
+
+def registry_implied_batch(proj: dict) -> int | None:
+    """Партия, с которой сохранены cost_per_unit/total_cost в projects.json."""
+    cpu = int(proj.get("cost_per_unit") or 0)
+    tc = int(proj.get("total_cost") or 0)
+    if cpu <= 0 or tc <= 0:
+        return None
+    implied = max(1, int(round(tc / cpu)))
+    if abs(tc - cpu * implied) <= max(2, implied):
+        return implied
+    return None
+
+
+def resolve_open_batch_size(proj: dict, saved: dict | None) -> int:
+    """При открытии: партия из реестра важнее устаревшего batch_size в data.txt."""
+    implied = registry_implied_batch(proj)
+    if implied is not None:
+        return implied
+    saved = saved or {}
+    if saved.get("batch_size") is not None:
+        try:
+            return max(1, int(float(saved["batch_size"])))
+        except (TypeError, ValueError):
+            pass
+    return max(1, int(st.session_state.get("saved_batch_size") or 1))
+
+
+def registry_frozen_quote(baseline: dict | None) -> dict | None:
+    """Сохранённые в реестре суммы для отображения при просмотре без правок."""
+    if not baseline:
+        return None
+    cpu = int(baseline.get("registry_cost_per_unit") or 0)
+    tc = int(baseline.get("registry_total_cost") or 0)
+    if cpu > 0 and tc > 0:
+        return {"cpu": cpu, "tc": tc}
+    return None
+
+
+def project_open_baseline(
+    proj: dict,
+    saved: dict | None,
+    *,
+    material: str,
+    workpiece_type: str,
+    diam: int,
+    length: int,
+    width: int,
+    height: int,
+    cost_per_hour: int,
+    batch_size: int,
+) -> dict:
+    """Снимок параметров/стоимости при открытии — для пропуска лишнего save."""
+    saved = saved or {}
+    return {
+        "material": material,
+        "workpiece_type": workpiece_type,
+        "diam": int(diam),
+        "length": int(length),
+        "width": int(width),
+        "height": int(height),
+        "cost_per_hour": int(cost_per_hour),
+        "cam_rate": int(saved.get("cam_rate") or st.session_state.get("cam_rate") or 0),
+        "batch_size": int(batch_size),
+        "registry_cost_per_unit": int(proj.get("cost_per_unit") or 0),
+        "registry_total_cost": int(proj.get("total_cost") or 0),
+    }
+
+
+def project_baseline_from_save(save_params: dict, prior: dict | None = None) -> dict:
+    base = {
+        "material": save_params.get("material"),
+        "workpiece_type": save_params.get("workpiece_type"),
+        "diam": int(save_params.get("diam") or 0),
+        "length": int(save_params.get("length") or 0),
+        "width": int(save_params.get("width") or 0),
+        "height": int(save_params.get("height") or 0),
+        "cost_per_hour": int(save_params.get("cost_per_hour") or 0),
+        "batch_size": int(save_params.get("batch_size") or 1),
+        "cam_rate": int(save_params.get("cam_rate") or 0),
+        "registry_cost_per_unit": 0,
+        "registry_total_cost": 0,
+    }
+    reg_cpu = int(save_params.get("cost_per_unit") or 0)
+    reg_tc = int(save_params.get("total_cost") or 0)
+    if reg_cpu > 0 and reg_tc > 0:
+        base["registry_cost_per_unit"] = reg_cpu
+        base["registry_total_cost"] = reg_tc
+    elif prior:
+        base["registry_cost_per_unit"] = int(prior.get("registry_cost_per_unit") or 0)
+        base["registry_total_cost"] = int(prior.get("registry_total_cost") or 0)
+    return base
+
+
+def project_registry_unchanged(baseline: dict | None, save_params: dict) -> bool:
+    """True, если пользователь не менял параметры — не трогаем реестр при просмотре."""
+    if not baseline:
+        return False
+    for key in ("material", "workpiece_type"):
+        if str(save_params.get(key) or "") != str(baseline.get(key) or ""):
+            return False
+    for key in ("diam", "length", "width", "height", "cost_per_hour"):
+        if int(save_params.get(key) or 0) != int(baseline.get(key) or 0):
+            return False
+    if int(save_params.get("batch_size") or 0) != int(baseline.get("batch_size") or 0):
+        return False
+    if int(save_params.get("cam_rate") or 0) != int(baseline.get("cam_rate") or 0):
+        return False
+    return True
+
+
 def reset_step_processing_session(
     *,
     slug: str | None = None,
@@ -571,8 +705,6 @@ def try_restore_analysis_from_data_txt(project_name: str, file_bytes: bytes) -> 
     data = load_project_data(project_name, user_folder(), storage=project_storage())
     if not data.get("step_analysis") and not data.get("geometry"):
         return False
-    if data.get("step_analysis_version") != step_analysis_version():
-        return False
     digest = data.get("step_file_digest")
     if digest and file_bytes and digest != step_file_digest(file_bytes):
         return False
@@ -581,6 +713,11 @@ def try_restore_analysis_from_data_txt(project_name: str, file_bytes: bytes) -> 
         if not patch.get("operations"):
             return False
     restore_project_from_data(data)
+    if file_bytes:
+        st.session_state["step_analysis_digest"] = step_file_digest(file_bytes)
+    elif digest:
+        st.session_state["step_analysis_digest"] = digest
+    st.session_state["step_analysis_version"] = step_analysis_version()
     return True
 
 
