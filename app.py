@@ -28,7 +28,7 @@ from utils import (
 
 sinlex_payment.load_env()
 
-st.set_page_config(page_title="AI Технолог", page_icon="/opt/sinlex/static/favicon.ico", layout="wide", initial_sidebar_state="auto")
+st.set_page_config(page_title="Sinlex — заказ деталей", page_icon="/opt/sinlex/static/favicon.ico", layout="wide", initial_sidebar_state="auto")
 
 # Скрываем меню Streamlit; запрет горизонтальной прокрутки
 st.markdown("""
@@ -964,7 +964,7 @@ with st.sidebar:
             f"</div>",
             unsafe_allow_html=True,
         )
-    st.title(os.environ.get("SINLEX_SIDEBAR_TITLE", "Технолог").strip() or "Технолог")
+    st.title(os.environ.get("SINLEX_SIDEBAR_TITLE", "Заказ деталей").strip() or "Заказ деталей")
     st.markdown("---")
     if st.button("Личный кабинет", key="nav_dashboard"):
         st.session_state.page = "dashboard"
